@@ -1,0 +1,1444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>NCERT Paper Maker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Noto+Serif:wght@400;700&family=Noto+Serif+Devanagari:wght@400;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+<style>
+/* Layout: fixed left rail of navigation + a single working column; the exam paper itself is the one "object" with a paper surface. */
+:root{
+  --bg:#f4f7f6; --surface:#ffffff; --surface-2:#eaf1ef; --line:#d5e0dd; --fg:#16231f; --muted:#5b6d68;
+  --accent:#0d7a6f; --accent-ink:#ffffff; --accent-soft:#d6efea;
+  --ok:#1f7a3a; --ok-soft:#dff3e5; --warn:#9a5b00; --warn-soft:#fbefd6; --bad:#b4232c; --bad-soft:#fbe3e4; --ai:#5b47b8; --ai-soft:#ece8fb;
+  --paper:#ffffff; --paper-ink:#111111; --paper-line:#9a9a9a;
+  --f-ui:"Figtree","Noto Sans Devanagari",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-display:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-paper:"Noto Serif","Noto Serif Devanagari",Georgia,"Times New Roman",serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1715; --surface:#16211e; --surface-2:#1d2b28; --line:#2c3d39; --fg:#e4eeeb; --muted:#9bb0aa;
+  --accent:#3cc4b3; --accent-ink:#04201c; --accent-soft:#163a35;
+  --ok:#6fd38b; --ok-soft:#173022; --warn:#f0b54a; --warn-soft:#3a2c12; --bad:#ff8a8f; --bad-soft:#3c1a1c; --ai:#b4a6ff; --ai-soft:#2a2547;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1715; --surface:#16211e; --surface-2:#1d2b28; --line:#2c3d39; --fg:#e4eeeb; --muted:#9bb0aa;
+  --accent:#3cc4b3; --accent-ink:#04201c; --accent-soft:#163a35;
+  --ok:#6fd38b; --ok-soft:#173022; --warn:#f0b54a; --warn-soft:#3a2c12; --bad:#ff8a8f; --bad-soft:#3c1a1c; --ai:#b4a6ff; --ai-soft:#2a2547;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-ui);margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:1.9rem;line-height:1.15} h2{font-size:1.4rem} h3{font-size:1.1rem}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+.rail{background:var(--surface);border-right:1px solid var(--line);padding:20px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow:auto}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 8px 18px}
+.brand-mark{width:34px;height:34px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+.brand b{font-family:var(--f-display);font-size:1.08rem;font-weight:600;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:.75rem}
+.nav{display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:8px;border:0;background:none;text-align:left;cursor:pointer;color:var(--fg);width:100%}
+.nav svg{width:18px;height:18px;flex:none;color:var(--muted)}
+.nav:hover{background:var(--surface-2)}
+.nav[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav[aria-current="page"] svg{color:var(--accent)}
+.rail-foot{margin-top:auto;font-size:.75rem;color:var(--muted);padding:8px 10px;line-height:1.4}
+main{padding-block:28px 80px;padding-inline:clamp(16px,3vw,40px);min-width:0;max-width:1180px;width:100%}
+.head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+.head p{margin:6px 0 0;color:var(--muted)}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel h3{margin-bottom:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:500;line-height:1.2;text-decoration:none;color:var(--fg)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:none;border-color:transparent;padding:6px 8px;color:var(--muted)}
+.btn.ghost:hover{color:var(--fg);background:var(--surface-2)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:5px 10px;font-size:.85rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.btn svg{width:16px;height:16px}
+label.f{display:grid;gap:5px;font-size:.85rem;font-weight:600;color:var(--muted)}
+input[type=text],input[type=number],input[type=search],input[type=date],select,textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;width:100%;min-width:0;font-weight:400;color:var(--fg)}
+textarea{resize:vertical;min-height:60px;line-height:1.45}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.ai{background:var(--ai-soft);color:var(--ai)} .pill.acc{background:var(--accent-soft);color:var(--accent)}
+.note{border-radius:8px;padding:10px 14px;font-size:.9rem;display:flex;gap:10px;align-items:flex-start}
+.note.warn{background:var(--warn-soft);color:var(--warn)} .note.bad{background:var(--bad-soft);color:var(--bad)} .note.ok{background:var(--ok-soft);color:var(--ok)} .note.info{background:var(--accent-soft);color:var(--accent)} .note.ai{background:var(--ai-soft);color:var(--ai)}
+.note b{font-weight:700}
+/* Stepper */
+.stepper{display:flex;gap:4px;overflow-x:auto;margin-bottom:22px;padding-bottom:4px}
+.step{flex:1 0 auto;min-width:96px;border:0;background:none;text-align:left;padding:8px 6px 0;border-top:3px solid var(--line);cursor:pointer;color:var(--muted);font-size:.8rem}
+.step b{display:block;font-size:.88rem;color:var(--fg);font-weight:600}
+.step.done{border-top-color:var(--accent)} .step.cur{border-top-color:var(--accent)} .step.cur b{color:var(--accent)}
+.step[disabled]{cursor:default}
+.wiz-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+/* Choice cards */
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.card{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:16px;cursor:pointer;text-align:left;display:grid;gap:4px;min-width:0}
+.card:hover{border-color:var(--accent)}
+.card[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.card .big{font-family:var(--f-display);font-size:2rem;font-weight:600;line-height:1}
+.card small{color:var(--muted)}
+/* Chapter list */
+.chap{display:grid;grid-template-columns:auto 2.4rem minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.chap:last-child{border-bottom:0}
+.chap .no{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.85rem}
+.chap.off{opacity:.55}
+.chaps{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.tb-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.weight{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.weight button{border:0;background:none;padding:2px 8px;font-size:.75rem;cursor:pointer;color:var(--muted)}
+.weight button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+/* Distribution table */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table.dist{border-collapse:collapse;width:100%;min-width:760px;font-variant-numeric:tabular-nums}
+table.dist th,table.dist td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+table.dist th{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--surface-2)}
+table.dist input[type=number]{width:70px}
+table.dist tfoot td{font-weight:700;border-bottom:0}
+.tally{display:flex;align-items:baseline;gap:8px;font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.tally .n{font-size:2.2rem;font-weight:600;line-height:1}
+.tally.ok .n{color:var(--ok)} .tally.bad .n{color:var(--bad)}
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 16px}
+.types label{display:flex;gap:8px;align-items:center;font-size:.92rem;padding:4px 0;cursor:pointer}
+/* Mix sliders */
+.mix{display:grid;grid-template-columns:90px minmax(0,1fr) 44px;gap:8px 12px;align-items:center}
+.mix output{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+input[type=range]{accent-color:var(--accent);width:100%}
+/* Editor */
+.ed-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start}
+.ed-side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:grid;gap:14px}
+.sec{margin-bottom:22px}
+.sec-h{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:grid;gap:8px}
+.q.ai-unrev{border-left:3px solid var(--ai)}
+.q.missing{border-style:dashed;border-color:var(--bad)}
+.q-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.q-num{font-family:var(--f-display);font-weight:600;font-size:1.05rem;min-width:2ch}
+.q-tools{margin-left:auto;display:flex;gap:2px;flex-wrap:wrap}
+.q textarea.qt{min-height:52px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px}
+.opt{display:flex;gap:6px;align-items:center}
+.opt input[type=radio]{accent-color:var(--accent)}
+.q-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem}
+.q-meta select,.q-meta input{width:auto;padding:4px 8px;font-size:.85rem}
+.q-meta input[type=number]{width:64px}
+.keybox{background:var(--surface-2);border-radius:8px;padding:10px;display:grid;gap:6px}
+.keybox label{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+.orbox{border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:6px}
+.qimg{max-width:240px;border:1px solid var(--line);border-radius:6px;background:#fff}
+.cov{display:grid;gap:6px;font-size:.85rem}
+.cov-row{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:8px;align-items:center}
+.bar{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;grid-column:1/-1}
+.bar i{display:block;height:100%;background:var(--accent)}
+.progress{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+/* Paper preview */
+.paper-frame{background:var(--surface-2);border-radius:var(--r);padding:18px;overflow-x:auto}
+.paper-sheet{background:var(--paper);color:var(--paper-ink);width:min(100%,794px);margin:0 auto;padding:40px 44px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+/* The exam paper (also used for PDF) */
+.pp{font-family:var(--f-paper);color:var(--paper-ink);font-size:12.5pt;line-height:1.45;background:var(--paper)}
+.pp *{color:var(--paper-ink)}
+.pp-head{display:flex;gap:14px;align-items:center;justify-content:center;text-align:center;border-bottom:1.5px solid var(--paper-ink);padding-bottom:8px}
+.pp-head img{width:64px;height:64px;object-fit:contain}
+.pp-school{font-size:17pt;font-weight:700;letter-spacing:.02em;line-height:1.2}
+.pp-sub{font-size:11pt}
+.pp-exam{font-size:13pt;font-weight:700;margin-top:2px}
+.pp-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 18px;padding:6px 0;font-size:11.5pt}
+.pp-student{display:flex;gap:18px;flex-wrap:wrap;padding:4px 0 8px;font-size:11.5pt;border-bottom:1px solid var(--paper-ink)}
+.pp-student span{flex:1 1 200px;white-space:nowrap}
+.pp-mt{display:flex;justify-content:space-between;font-weight:700;padding:6px 0;border-bottom:1px solid var(--paper-ink)}
+.pp-gi{font-size:11pt;padding:6px 0 4px}
+.pp-gi ol{margin:2px 0 0;padding-left:22px}
+.pp-sec{margin-top:12px}
+.pp-sec h4{text-align:center;font-size:12.5pt;margin:6px 0 2px;letter-spacing:.06em}
+.pp-si{text-align:center;font-style:italic;font-size:11pt;margin:0 0 8px}
+.pq{display:grid;grid-template-columns:30px minmax(0,1fr) 34px;gap:4px;margin:0 0 10px;page-break-inside:avoid;break-inside:avoid}
+.pq-n{font-weight:700}
+.pq-m{text-align:right;font-weight:700;font-size:11pt}
+.pq-b p{margin:0}
+.pq-opts{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;margin-top:4px;break-inside:avoid}
+.pq-opts.one{grid-template-columns:1fr}
+.pq-or{text-align:center;font-weight:700;margin:6px 0}
+.pq-img{max-width:60%;max-height:240px;margin:6px 0;display:block}
+.pq-lines{margin-top:6px}
+.pq-lines div{border-bottom:1px solid var(--paper-line);height:26px}
+.pq table{border-collapse:collapse;margin-top:6px;width:100%;break-inside:avoid}
+.pq td,.pq th{border:1px solid var(--paper-ink);padding:3px 8px;font-size:11.5pt;text-align:left;vertical-align:top}
+.pp-end{text-align:center;margin-top:14px;font-size:11pt;letter-spacing:.2em}
+.pp-key h4{text-align:center;margin:0 0 10px;font-size:14pt}
+.pk{display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px;margin-bottom:8px;break-inside:avoid;page-break-inside:avoid}
+.pk .lab{font-weight:700;font-size:10.5pt;text-transform:uppercase;letter-spacing:.04em}
+.pk p{margin:2px 0}
+.pp-pagebreak{page-break-before:always;break-before:page}
+.pdf-host{position:fixed;left:-12000px;top:0;width:186mm;background:#fff}
+.pdf-host .pp{font-size:11.5pt}
+/* Lists */
+.list{display:grid;gap:10px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:center}
+.item h3{font-family:var(--f-ui);font-size:1rem;font-weight:600}
+.item .meta{color:var(--muted);font-size:.85rem;display:flex;gap:6px 12px;flex-wrap:wrap;align-items:center}
+.item .acts{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.stat{display:grid;gap:2px}
+.stat .v{font-family:var(--f-display);font-size:2rem;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .l{color:var(--muted);font-size:.85rem}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:26px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--fg);font-size:1rem;margin-bottom:4px}
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:24px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px 28px;margin-bottom:18px}
+.hero p{color:var(--muted);margin:8px 0 16px;max-width:52ch}
+.mini-sheet{background:var(--paper);color:var(--paper-ink);border-radius:4px;padding:16px 18px;font-family:var(--f-paper);font-size:.72rem;line-height:1.5;box-shadow:0 6px 18px rgba(0,0,0,.12);transform:rotate(1.2deg)}
+.mini-sheet *{color:var(--paper-ink)}
+.mini-sheet .t{text-align:center;font-weight:700;font-size:.82rem;border-bottom:1px solid var(--paper-ink);padding-bottom:4px;margin-bottom:6px}
+.mini-sheet .r{display:flex;justify-content:space-between;gap:8px}
+/* Toasts + modal */
+.toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;z-index:50;max-width:min(380px,calc(100vw - 32px))}
+.toast{background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:8px;font-size:.9rem;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.bad{background:var(--bad);color:#fff}
+.modal-bg{position:fixed;inset:0;background:rgba(10,20,18,.45);display:grid;place-items:center;z-index:40;padding:16px}
+.modal{background:var(--surface);border-radius:12px;padding:20px;max-width:440px;width:100%;display:grid;gap:14px;border:1px solid var(--line)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:8px 12px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;font-weight:500;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.radio-cards{display:grid;gap:8px}
+.radio-cards label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;background:var(--surface)}
+.radio-cards label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.radio-cards input{margin-top:3px;accent-color:var(--accent)}
+.radio-cards small{display:block;color:var(--muted)}
+.spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp 0.8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spin{animation-duration:3s}.progress i{transition:none}}
+.mobile-bar{display:none}
+@media (max-width:900px){
+  .ed-layout{grid-template-columns:minmax(0,1fr)}
+  .ed-side{position:static}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .mini-sheet{display:none}
+}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .mobile-bar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:8px 16px;gap:10px;align-items:center;justify-content:space-between}
+  .mobile-bar select{width:auto;max-width:60%}
+  main{padding-block:18px 80px}
+  .item{grid-template-columns:minmax(0,1fr)}
+  .item .acts{justify-content:flex-start}
+  .paper-sheet{padding:22px 16px}
+  .chap{grid-template-columns:auto 2rem minmax(0,1fr)}
+  .chap .weight{grid-column:3}
+}
+</style>
+
+<div class="app">
+  <aside class="rail" id="rail"></aside>
+  <div style="min-width:0">
+    <div class="mobile-bar"><div class="brand" style="padding:0"><div class="brand-mark">P</div><b>Paper Maker</b></div><select id="mnav" aria-label="Go to"></select></div>
+    <main id="main"></main>
+  </div>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div id="modal"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   NCERT Paper Maker — single-page app
+   Storage: per-teacher private store (claude db) → browser storage fallback
+   AI: Claude via the page's sample capability (no API key in page)
+   PDF: html2pdf (html2canvas + jsPDF), saved via the downloads capability
+   ============================================================ */
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nl2br = s => esc(s).replace(/\n/g, "<br>");
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const clone = o => JSON.parse(JSON.stringify(o));
+const fmtDate = t => new Date(t).toLocaleDateString("en-IN", {day:"numeric", month:"short", year:"numeric"});
+const LETTERS = "ABCDEFGHIJKLMNOP";
+const ROMAN = ["i","ii","iii","iv","v","vi","vii","viii","ix","x"];
+const TODAY_ISO = () => new Date().toISOString().slice(0,10);
+
+/* ---------------- Syllabus database (built-in) ---------------- */
+const CHECKED_ON = "2026-10-12";
+const SRC_TA = "Cross-checked on 12 Oct 2026 against the 2026-27 chapter listings published by Tiwari Academy (tiwariacademy.in). Confirm against the NCERT textbook at ncert.nic.in/textbook.";
+const SRC_MEM = "Loaded from the NCERT edition named here; not re-checked against a source for 2026-27. Open the textbook, confirm, then mark it verified.";
+const SRC_EMPTY = "Chapter list not loaded yet. Add chapters from the NCERT textbook in Syllabus data.";
+
+function chs(prefix, titles, start = 1){ return titles.map((t,i) => ({id:`${prefix}-${start+i}`, no:start+i, title:t, inSyllabus:true})); }
+function tb(id, title, edition, status, chapters = [], extra = {}){
+  const source = status === "verified" ? SRC_TA : status === "unverified" ? SRC_MEM : status === "skills" ? "Generic skill areas used in CBSE language papers. These are not textbook chapters." : SRC_EMPTY;
+  return {id, title, edition, status, source, checked: status === "verified" ? CHECKED_ON : null, chapters, ...extra};
+}
+const ENG_SKILLS = ["Reading: unseen factual passage","Reading: unseen discursive or literary passage","Grammar: tenses and verb forms","Grammar: determiners, modals and prepositions","Grammar: reported speech","Grammar: active and passive voice","Writing: formal letter","Writing: notice or message","Writing: paragraph or descriptive writing","Writing: story writing"];
+const HIN_SKILLS = ["अपठित गद्यांश","अपठित काव्यांश","व्याकरण: वर्ण-विचार एवं संधि","व्याकरण: शब्द-निर्माण (उपसर्ग, प्रत्यय, समास)","व्याकरण: वाक्य-रचना एवं वाच्य","व्याकरण: मुहावरे एवं लोकोक्तियाँ","लेखन: पत्र-लेखन","लेखन: अनुच्छेद-लेखन","लेखन: सूचना / विज्ञापन-लेखन","लेखन: कहानी-लेखन"];
+function langSubjects(c, engBooks, hinBooks, sktBooks){
+  return [
+    {id:`c${c}-eng`, name:"English", cat:"eng", textbooks:[...engBooks.map((t,i)=>tb(`c${c}-eng-b${i+1}`, t, "NCERT", "empty")), tb(`c${c}-eng-sk`, "Language skills", "—", "skills", chs(`c${c}-eng-sk`, ENG_SKILLS))]},
+    {id:`c${c}-hin`, name:"Hindi", cat:"hin", textbooks:[...hinBooks.map((t,i)=>tb(`c${c}-hin-b${i+1}`, t, "NCERT", "empty")), tb(`c${c}-hin-sk`, "भाषा कौशल (Language skills)", "—", "skills", chs(`c${c}-hin-sk`, HIN_SKILLS))]},
+    {id:`c${c}-skt`, name:"Sanskrit", cat:"skt", textbooks: sktBooks.map((t,i)=>tb(`c${c}-skt-b${i+1}`, t, "NCERT", "empty"))}
+  ];
+}
+const BASE_SYL = {
+  session: "2026-27",
+  classes: {
+    "6": {subjects: [
+      {id:"c6-math", name:"Mathematics", cat:"math", textbooks:[tb("c6-gp","Ganita Prakash","2024 edition","unverified", chs("c6-gp",["Patterns in Mathematics","Lines and Angles","Number Play","Data Handling and Presentation","Prime Time","Perimeter and Area","Fractions","Playing with Constructions","Symmetry","The Other Side of Zero"]))]},
+      {id:"c6-sci", name:"Science", cat:"sci", textbooks:[tb("c6-cur","Curiosity","2024 edition","unverified", chs("c6-cur",["The Wonderful World of Science","Diversity in the Living World","Mindful Eating: A Path to a Healthy Body","Exploring Magnets","Measurement of Length and Motion","Materials Around Us","Temperature and its Measurement","A Journey through States of Water","Methods of Separation in Everyday Life","Living Creatures: Exploring their Characteristics","Nature's Treasures","Beyond Earth"]))]},
+      {id:"c6-sst", name:"Social Science", cat:"sst", textbooks:[tb("c6-es","Exploring Society: India and Beyond","2024 edition","empty")]},
+      ...langSubjects(6, ["Poorvi"], ["Malhar"], [])
+    ]},
+    "7": {subjects: [
+      {id:"c7-math", name:"Mathematics", cat:"math", textbooks:[
+        tb("c7-gp1","Ganita Prakash, Part 1","2025 edition","verified", chs("c7-gp1",["Large Numbers Around Us","Arithmetic Expressions","A Peek Beyond the Point","Expressions using Letter-Numbers","Parallel and Intersecting Lines","Number Play","A Tale of Three Intersecting Lines","Working with Fractions"])),
+        tb("c7-gp2","Ganita Prakash, Part 2","2025 edition","empty")]},
+      {id:"c7-sci", name:"Science", cat:"sci", textbooks:[tb("c7-cur","Curiosity","2025 edition","verified", chs("c7-cur",["The Ever-Evolving World of Science","Exploring Substances: Acidic, Basic, and Neutral","Electricity: Circuits and their Components","The World of Metals and Non-metals","Changes Around Us: Physical and Chemical","Adolescence: A Stage of Growth and Change","Heat Transfer in Nature","Measurement of Time and Motion","Life Processes in Animals","Life Processes in Plants","Light: Shadows and Reflections","Earth, Moon and the Sun"]))]},
+      {id:"c7-sst", name:"Social Science", cat:"sst", textbooks:[tb("c7-es","Exploring Society: India and Beyond","2025 edition","empty")]},
+      ...langSubjects(7, ["Poorvi"], ["Malhar"], [])
+    ]},
+    "8": {subjects: [
+      {id:"c8-math", name:"Mathematics", cat:"math", textbooks:[
+        tb("c8-gp1","Ganita Prakash, Part 1","2025 edition","verified", chs("c8-gp1",["A Square and A Cube","Power Play","A Story of Numbers","Quadrilaterals","Number Play","We Distribute, Yet Things Multiply","Proportional Reasoning-1"])),
+        tb("c8-gp2","Ganita Prakash, Part 2","2025 edition","empty")]},
+      {id:"c8-sci", name:"Science", cat:"sci", textbooks:[tb("c8-cur","Curiosity","2025 edition","verified", chs("c8-cur",["Exploring the Investigative World of Science","The Invisible Living World: Beyond Our Naked Eye","Health: The Ultimate Treasure","Electricity: Magnetic and Heating Effects","Exploring Forces","Pressure, Winds, Storms and Cyclones","Particulate Nature of Matter","Nature of Matter: Elements, Compounds and Mixtures","The Amazing World of Solutes, Solvents and Solutions","Light: Mirrors and Lenses","Keeping Time with the Skies","How Nature Works in Harmony","Our Home: Earth, a Unique Life Sustaining Planet"]))]},
+      {id:"c8-sst", name:"Social Science", cat:"sst", textbooks:[tb("c8-es","Exploring Society: India and Beyond","2025 edition","empty")]},
+      ...langSubjects(8, ["Poorvi"], ["Malhar"], [])
+    ]},
+    "9": {subjects: [
+      {id:"c9-math", name:"Mathematics", cat:"math", textbooks:[
+        tb("c9-gm1","Ganita Manjari, Part 1","2026 edition","verified", chs("c9-gm",["Orienting Yourself: The Use of Coordinates","Introduction to Linear Polynomials","The World of Numbers","Exploring Algebraic Identities","I'm Up and Down, and Round and Round","Measuring Space: Perimeter and Area","The Mathematics of Maybe: Introduction to Probability","Predicting What Comes Next: Exploring Sequences and Progressions"])),
+        tb("c9-gm2","Ganita Manjari, Part 2","2026 edition","verified", chs("c9-gm",["Propositions and their Converses","How Quantities Combine: Understanding Data","The World of Algorithms","Quadrilaterals","Two Variables, One Line","Math of Space: Surface Area and Volume"], 9))]},
+      {id:"c9-sci", name:"Science", cat:"sci", textbooks:[tb("c9-exp","Exploration","2026 edition","verified", chs("c9-exp",["Exploration: Entering the World of Secondary Science","Cell: The Building Block of Life","Tissues in Action","Describing Motion Around Us","Exploring Mixtures and their Separation","How Forces Affect Motion","Work, Energy and Simple Machines","Journey Inside the Atom","Atomic Foundations of Matter","Sound Waves: Characteristics and Applications","Reproduction: How Life Continues","Patterns in Life: Diversity and Classification","Earth as a System: Energy, Matter and Life"]))]},
+      {id:"c9-sst", name:"Social Science", cat:"sst", textbooks:[tb("c9-us","Understanding Society: India and Beyond","2026 edition","empty")]},
+      ...langSubjects(9, ["Kaveri"], ["Ganga"], ["Sharada"])
+    ]},
+    "10": {subjects: [
+      {id:"c10-math", name:"Mathematics", cat:"math", textbooks:[tb("c10-m","Mathematics","Rationalised edition (2023 onwards)","unverified", chs("c10-m",["Real Numbers","Polynomials","Pair of Linear Equations in Two Variables","Quadratic Equations","Arithmetic Progressions","Triangles","Coordinate Geometry","Introduction to Trigonometry","Some Applications of Trigonometry","Circles","Areas Related to Circles","Surface Areas and Volumes","Statistics","Probability"]))]},
+      {id:"c10-sci", name:"Science", cat:"sci", textbooks:[tb("c10-s","Science","Rationalised edition (2023 onwards)","unverified", chs("c10-s",["Chemical Reactions and Equations","Acids, Bases and Salts","Metals and Non-metals","Carbon and its Compounds","Life Processes","Control and Coordination","How do Organisms Reproduce?","Heredity","Light – Reflection and Refraction","The Human Eye and the Colourful World","Electricity","Magnetic Effects of Electric Current","Our Environment"]))]},
+      {id:"c10-sst", name:"Social Science", cat:"sst", textbooks:[
+        tb("c10-his","India and the Contemporary World – II (History)","NCERT","empty"),
+        tb("c10-geo","Contemporary India – II (Geography)","NCERT","empty"),
+        tb("c10-pol","Democratic Politics – II (Political Science)","NCERT","empty"),
+        tb("c10-eco","Understanding Economic Development (Economics)","NCERT","empty")]},
+      ...langSubjects(10, ["First Flight","Footprints without Feet"], ["Kshitij – 2","Kritika – 2","Sparsh – 2","Sanchayan – 2"], ["Shemushi – 2"])
+    ]}
+  }
+};
+
+/* ---------------- Question types ---------------- */
+const TYPES = {
+  mcq:{label:"Multiple choice (MCQ)", short:"MCQ", obj:true, opts:true, marks:1},
+  ar:{label:"Assertion and reason", short:"Assertion–Reason", obj:true, opts:true, marks:1},
+  tf:{label:"True or false", short:"True/False", obj:true, marks:1},
+  fib:{label:"Fill in the blanks", short:"Fill in the blank", obj:true, marks:1},
+  match:{label:"Match the following", short:"Match", obj:true, marks:4},
+  oneword:{label:"One-word answer", short:"One word", obj:true, marks:1},
+  vsa:{label:"Very short answer", short:"Very short answer", marks:2},
+  sa:{label:"Short answer", short:"Short answer", marks:3},
+  la:{label:"Long answer", short:"Long answer", marks:5},
+  case:{label:"Case-based", short:"Case-based", marks:4},
+  competency:{label:"Competency-based", short:"Competency-based", marks:3},
+  numerical:{label:"Numerical problem", short:"Numerical", marks:3},
+  diagram:{label:"Diagram-based", short:"Diagram-based", marks:3},
+  source:{label:"Source-based", short:"Source-based", marks:4},
+  map:{label:"Map work", short:"Map work", marks:3},
+  passage:{label:"Passage-based (reading)", short:"Reading passage", marks:8},
+  grammar:{label:"Grammar", short:"Grammar", marks:1},
+  writing:{label:"Creative writing", short:"Writing", marks:5}
+};
+const CAT_TYPES = {
+  math:["mcq","ar","tf","fib","oneword","vsa","sa","la","case","competency","numerical"],
+  sci:["mcq","ar","tf","fib","match","oneword","vsa","sa","la","case","competency","numerical","diagram"],
+  sst:["mcq","ar","tf","fib","match","oneword","vsa","sa","la","case","competency","source","map"],
+  eng:["mcq","fib","match","oneword","vsa","sa","la","passage","grammar","writing"],
+  hin:["mcq","fib","match","oneword","vsa","sa","la","passage","grammar","writing"],
+  skt:["mcq","fib","match","oneword","vsa","sa","la","passage","grammar","writing"],
+  other:Object.keys(TYPES)
+};
+const CAT_NAMES = {math:"Mathematics",sci:"Science",sst:"Social Science",eng:"English",hin:"Hindi",skt:"Sanskrit",other:"Other subject"};
+function typesFor(cat, cls){ let t = CAT_TYPES[cat] || CAT_TYPES.other; if (+cls < 8) t = t.filter(x => x !== "ar"); return t; }
+
+const EXAM_TYPES = [
+  {id:"chapter",label:"Chapter-wise Test",marks:20,dur:45},
+  {id:"unit",label:"Unit Test",marks:25,dur:60},
+  {id:"periodic",label:"Periodic Test",marks:40,dur:90},
+  {id:"monthly",label:"Monthly Test",marks:20,dur:45},
+  {id:"half",label:"Half-Yearly Examination",marks:80,dur:180},
+  {id:"annual",label:"Annual Examination",marks:80,dur:180},
+  {id:"worksheet",label:"Revision Worksheet",marks:25,dur:60},
+  {id:"practice",label:"Practice Test",marks:40,dur:90},
+  {id:"preboard",label:"Pre-Board Examination",marks:80,dur:180,classes:["10"]}
+];
+const MARK_OPTS = [10,20,25,30,40,50,80,100];
+const DUR_OPTS = [30,45,60,90,120,180];
+const durLabel = m => m < 60 ? `${m} minutes` : (m % 60 ? `${Math.floor(m/60)} hr ${m%60} min` : `${m/60} hour${m===60?"":"s"}`);
+
+/* ---------------- Labels for paper language ---------------- */
+const L = {
+  en:{maxm:"Maximum Marks",time:"Time Allowed",gi:"General Instructions",sec:"SECTION",cls:"Class",sub:"Subject",date:"Date",name:"Name",roll:"Roll No.",or:"OR",end:"*** END OF THE QUESTION PAPER ***",key:"ANSWER KEY",sol:"ANSWERS AND MARKING SCHEME",ans:"Answer",solution:"Solution / model answer",scheme:"Marking scheme",colA:"Column A",colB:"Column B",session:"Session"},
+  hi:{maxm:"अधिकतम अंक",time:"निर्धारित समय",gi:"सामान्य निर्देश",sec:"खंड",cls:"कक्षा",sub:"विषय",date:"दिनांक",name:"नाम",roll:"अनुक्रमांक",or:"अथवा",end:"*** प्रश्न-पत्र समाप्त ***",key:"उत्तर-कुंजी",sol:"उत्तर एवं अंक-योजना",ans:"उत्तर",solution:"हल / आदर्श उत्तर",scheme:"अंक-योजना",colA:"स्तंभ क",colB:"स्तंभ ख",session:"सत्र"}
+};
+
+/* ---------------- Built-in example paper + starter questions ---------------- */
+const STARTER_SRC = "Starter question written by Claude for this app. Check it before marking it verified.";
+const EX_Q = [
+  {sec:0,type:"mcq",chapterId:"c10-m-1",difficulty:"easy",marks:1,text:"The HCF of 96 and 404 is",options:["4","8","12","2"],answerIndex:0,answer:"(a) 4",solution:"96 = 2⁵ × 3 and 404 = 2² × 101. The common factor with the least power is 2², so HCF = 4.",scheme:"1 mark for the correct option."},
+  {sec:0,type:"mcq",chapterId:"c10-m-2",difficulty:"easy",marks:1,text:"The sum of the zeroes of the polynomial p(x) = 2x² − 8x + 6 is",options:["4","−4","3","8"],answerIndex:0,answer:"(a) 4",solution:"Sum of zeroes = −b/a = −(−8)/2 = 4.",scheme:"1 mark for the correct option."},
+  {sec:0,type:"mcq",chapterId:"c10-m-3",difficulty:"moderate",marks:1,text:"The pair of equations x + 2y = 4 and 2x + 4y = 12 has",options:["a unique solution","no solution","infinitely many solutions","exactly two solutions"],answerIndex:1,answer:"(b) no solution",solution:"a₁/a₂ = 1/2, b₁/b₂ = 2/4 = 1/2, c₁/c₂ = 4/12 = 1/3. Since a₁/a₂ = b₁/b₂ ≠ c₁/c₂, the lines are parallel and there is no solution.",scheme:"1 mark for the correct option."},
+  {sec:0,type:"mcq",chapterId:"c10-m-4",difficulty:"moderate",marks:1,text:"The quadratic equation 2x² − 4x + 3 = 0 has",options:["two distinct real roots","two equal real roots","no real roots","more than two real roots"],answerIndex:2,answer:"(c) no real roots",solution:"Discriminant D = b² − 4ac = 16 − 24 = −8 < 0, so there are no real roots.",scheme:"1 mark for the correct option."},
+  {sec:0,type:"mcq",chapterId:"c10-m-1",difficulty:"easy",marks:1,text:"Which of the following numbers is irrational?",options:["√16","0.375","3 + √5","22/7"],answerIndex:2,answer:"(c) 3 + √5",solution:"√16 = 4, 0.375 = 3/8 and 22/7 are rational. √5 is irrational, so 3 + √5 is irrational.",scheme:"1 mark for the correct option."},
+  {sec:1,type:"vsa",chapterId:"c10-m-1",difficulty:"easy",marks:2,text:"Find the LCM of 12, 15 and 21 by the prime factorisation method.",answer:"420",solution:"12 = 2² × 3, 15 = 3 × 5, 21 = 3 × 7. LCM = 2² × 3 × 5 × 7 = 420.",scheme:"1 mark for correct prime factorisation; 1 mark for the LCM."},
+  {sec:1,type:"vsa",chapterId:"c10-m-2",difficulty:"moderate",marks:2,text:"Find a quadratic polynomial whose sum and product of zeroes are −3 and 2 respectively.",answer:"x² + 3x + 2 (or any non-zero multiple of it)",solution:"A quadratic polynomial with sum S and product P of zeroes is k[x² − Sx + P]. With S = −3 and P = 2, we get x² + 3x + 2.",scheme:"1 mark for the form x² − (sum)x + product; 1 mark for the correct polynomial."},
+  {sec:1,type:"vsa",chapterId:"c10-m-3",difficulty:"moderate",marks:2,text:"Solve the pair of equations 2x + 3y = 11 and 2x − 4y = −24 by the elimination method.",answer:"x = −2, y = 5",solution:"Subtracting the second equation from the first: 7y = 35, so y = 5. Then 2x = 11 − 15 = −4, so x = −2. Check: 2(−2) − 4(5) = −24.",scheme:"1 mark for eliminating x and finding y; 1 mark for finding x."},
+  {sec:2,type:"sa",chapterId:"c10-m-4",difficulty:"moderate",marks:3,text:"Find the roots of the quadratic equation 2x² − 7x + 3 = 0 using the quadratic formula.",answer:"x = 3 or x = 1/2",solution:"a = 2, b = −7, c = 3. D = 49 − 24 = 25. x = (7 ± 5)/4, so x = 12/4 = 3 or x = 2/4 = 1/2.",scheme:"1 mark for the discriminant; 1 mark for substituting in the formula; 1 mark for both roots."},
+  {sec:2,type:"sa",chapterId:"c10-m-1",difficulty:"difficult",marks:3,text:"Prove that 3 + 2√5 is irrational, given that √5 is irrational.",answer:"Proof by contradiction",solution:"Assume 3 + 2√5 = a/b, where a and b are integers, b ≠ 0. Then √5 = (a − 3b)/(2b). The right side is rational, so √5 would be rational. This contradicts the fact that √5 is irrational. Hence 3 + 2√5 is irrational.",scheme:"1 mark for the assumption; 1 mark for isolating √5; 1 mark for the contradiction and conclusion."},
+  {sec:2,type:"sa",chapterId:"c10-m-4",difficulty:"moderate",marks:3,text:"The sum of a positive number and its reciprocal is 10/3. Find the number.",answer:"3 or 1/3",solution:"Let the number be x. x + 1/x = 10/3 ⇒ 3x² − 10x + 3 = 0 ⇒ (3x − 1)(x − 3) = 0 ⇒ x = 3 or x = 1/3. Both are positive, so both are valid.",scheme:"1 mark for forming the equation; 1 mark for factorising; 1 mark for the answer."}
+];
+function linesFor(type, marks){ if (TYPES[type]?.obj) return 0; return Math.min(16, Math.max(2, Math.round(marks * 1.8))); }
+function mkQ(o){ return {id:uid(), type:o.type, text:o.text, options:o.options||[], answerIndex:o.answerIndex ?? null, pairs:o.pairs||[], matchOrder:o.matchOrder||null, answer:o.answer||"", solution:o.solution||"", scheme:o.scheme||"", marks:o.marks, chapterId:o.chapterId, difficulty:o.difficulty||"moderate", lines: o.lines ?? linesFor(o.type,o.marks), source:o.source||"custom", reviewed:!!o.reviewed, image:o.image||null, or:o.or||null, bankId:o.bankId||null}; }
+function examplePaper(){
+  const secs = [
+    {id:"sa",label:"A",type:"mcq",instructions:"Each question carries 1 mark.",attempt:null,questions:[]},
+    {id:"sb",label:"B",type:"vsa",instructions:"Each question carries 2 marks.",attempt:null,questions:[]},
+    {id:"sc",label:"C",type:"sa",instructions:"Each question carries 3 marks.",attempt:null,questions:[]}];
+  EX_Q.forEach((q,i) => secs[q.sec].questions.push(mkQ({...q, source:"starter", bankId:"st-"+i})));
+  return {id:"example", example:true, name:"Example: Class 10 Maths Unit Test", created:Date.parse("2026-10-12T09:00:00+05:30"), updated:Date.parse("2026-10-12T09:00:00+05:30"),
+    config:{classNo:"10", subjectId:"c10-math", chapterIds:["c10-m-1","c10-m-2","c10-m-3","c10-m-4"], weights:{}, examType:"unit", examName:"Unit Test 1", maxMarks:20, duration:45, difficulty:"mixed", mix:{e:30,m:50,d:20}, source:"bank", types:["mcq","vsa","sa"], language:"en", answerSpace:true,
+      sections:[{id:"sa",label:"A",type:"mcq",count:5,marks:1,choices:0,attempt:null},{id:"sb",label:"B",type:"vsa",count:3,marks:2,choices:0,attempt:null},{id:"sc",label:"C",type:"sa",count:3,marks:3,choices:0,attempt:null}]},
+    syllabusVersion:{session:"2026-27", textbooks:["Mathematics (Rationalised edition)"]}, sections:secs};
+}
+const STARTER_BANK = EX_Q.map((q,i) => ({...mkQ({...q, source:"starter"}), id:"st-"+i, classNo:"10", subjectId:"c10-math", topic:"", ref:STARTER_SRC, verifiedOn:null, starter:true}));
+
+/* ---------------- Storage ---------------- */
+const Store = {
+  mode:"memory", db:null, base:null,
+  async init(){
+    try{
+      if (window.claude && claude.use){
+        const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+        if (db && user){ const id = await user.id(); if (id){ this.db = db; this.base = `data/users/${id}`; this.mode = "db"; return; } }
+      }
+    }catch(e){ /* fall through */ }
+    try{ localStorage.setItem("npm:probe","1"); localStorage.removeItem("npm:probe"); this.mode = "local"; }catch(e){ this.mode = "memory"; }
+  },
+  async loadAll(){
+    const out = {paper:[], tpl:[], bank:[], settings:[], syl:[]};
+    if (this.mode === "db"){
+      const snap = await this.db.collection(this.base).get();
+      snap.docs.forEach(d => { const v = d.data(); if (v && out[v.kind]) { try{ out[v.kind].push(JSON.parse(v.json)); }catch(e){} } });
+    } else if (this.mode === "local"){
+      try{ for (let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); if (!k.startsWith("npm:")) continue; const kind = k.split(":")[1]; if (out[kind]) { try{ out[kind].push(JSON.parse(localStorage.getItem(k))); }catch(e){} } } }catch(e){}
+    }
+    return out;
+  },
+  async put(kind, obj){
+    if (this.mode === "db") return this.db.collection(this.base).doc(`${kind}_${obj.id}`).set({kind, id:obj.id, updated:Date.now(), json:JSON.stringify(obj)});
+    if (this.mode === "local"){ try{ localStorage.setItem(`npm:${kind}:${obj.id}`, JSON.stringify(obj)); }catch(e){ throw {message:"This browser refused to save (storage may be full or blocked)."}; } }
+  },
+  async del(kind, id){
+    if (this.mode === "db") return this.db.collection(this.base).doc(`${kind}_${id}`).delete();
+    if (this.mode === "local"){ try{ localStorage.removeItem(`npm:${kind}:${id}`); }catch(e){} }
+  }
+};
+async function save(kind, obj){ try{ await Store.put(kind, obj); return true; }catch(e){ toast("Couldn't save: " + (e.message || "storage is unavailable") + " Your work is still open here.", true); return false; } }
+
+/* ---------------- State ---------------- */
+const DEFAULT_SETTINGS = {id:"main", school:"", logo:null, teacher:"", session:"2026-27", duration:60, lang:"en", layout:"lines", headerLine:"", footer:"", instructions:"Read every question carefully before answering.\nWrite neatly and legibly.", defaultTpl:"", theme:""};
+const S = { view:"dashboard", settings:clone(DEFAULT_SETTINGS), papers:[], tpls:[], bank:[], syl:clone(BASE_SYL), wiz:null, paper:null, step:1, gen:null, edTab:"edit", showKey:false, ai:null, dl:null, filters:{q:"",cls:"",sub:""}, bankF:{cls:"",sub:"",status:"",q:""}, sylSel:{cls:"9",sub:"",tb:""}, dlMode:"paper" };
+
+/* ---------------- Syllabus helpers ---------------- */
+const classes = () => Object.keys(S.syl.classes).sort((a,b)=>a-b);
+const subjectsOf = c => S.syl.classes[c]?.subjects || [];
+const subject = (c, sid) => subjectsOf(c).find(s => s.id === sid);
+function allChapters(c, sid){ const s = subject(c,sid); if (!s) return []; return s.textbooks.flatMap(t => t.chapters.map(ch => ({...ch, tb:t}))); }
+function chapterById(c, sid, id){ return allChapters(c,sid).find(x => x.id === id); }
+function chapterLabel(c, sid, id){ const ch = chapterById(c,sid,id); return ch ? `Ch ${ch.no}. ${ch.title}` : "Unknown chapter"; }
+
+/* ---------------- UI helpers ---------------- */
+function toast(msg, bad){ const t = document.createElement("div"); t.className = "toast" + (bad ? " bad":""); t.textContent = msg; $("#toasts").appendChild(t); setTimeout(()=>t.remove(), bad ? 6500 : 3200); }
+function $(s){ return document.querySelector(s); }
+function confirmBox(msg, yesLabel, onYes){
+  $("#modal").innerHTML = `<div class="modal-bg" data-act="modal-close"><div class="modal" role="dialog" aria-modal="true"><p style="margin:0">${esc(msg)}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="modal-close">Cancel</button><button class="btn primary" id="modal-yes">${esc(yesLabel)}</button></div></div></div>`;
+  $("#modal-yes").onclick = () => { $("#modal").innerHTML = ""; onYes(); };
+  $("#modal-yes").focus();
+}
+function promptBox(title, value, yesLabel, onYes){
+  $("#modal").innerHTML = `<div class="modal-bg" data-act="modal-close"><form class="modal" id="pform"><label class="f">${esc(title)}<input type="text" id="pval" value="${esc(value)}"></label><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="modal-close">Cancel</button><button class="btn primary">${esc(yesLabel)}</button></div></form></div>`;
+  $("#pform").onsubmit = e => { e.preventDefault(); const v = $("#pval").value.trim(); if (!v) return; $("#modal").innerHTML = ""; onYes(v); };
+  $("#pval").focus(); $("#pval").select();
+}
+const IC = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M8 13h8M8 17h6"/></svg>',
+  tpl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M9 9v11"/></svg>',
+  bank:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7.1 19.8l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 3 14.3H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.2 7.6l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>',
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>',
+  dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>',
+  img:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>'
+};
+const NAV = [["dashboard","Dashboard","home"],["create","Create Question Paper","plus"],["papers","My Question Papers","doc"],["templates","Saved Templates","tpl"],["bank","Question Bank","bank"],["syllabus","Syllabus Data","book"],["settings","Settings","gear"]];
+
+function renderRail(){
+  $("#rail").innerHTML = `<div class="brand"><div class="brand-mark">P</div><div><b>NCERT Paper Maker</b><small>CBSE Classes 6–10</small></div></div>` +
+    NAV.map(([v,l,i]) => `<button class="nav" data-act="go" data-v="${v}" ${S.view===v?'aria-current="page"':""}>${IC[i]}${l}</button>`).join("") +
+    `<div class="rail-foot">Session ${esc(S.syl.session)}<br>${Store.mode==="db"?"Saved to your Claude account":Store.mode==="local"?"Saved in this browser only":"Not saving: storage unavailable"}</div>`;
+  $("#mnav").innerHTML = NAV.map(([v,l]) => `<option value="${v}" ${S.view===v?"selected":""}>${l}</option>`).join("");
+}
+function go(view){ S.view = view; render(); window.scrollTo(0,0); }
+
+/* ---------------- Render root ---------------- */
+function render(){
+  renderRail();
+  const m = $("#main");
+  const views = {dashboard:vDashboard, create:vCreate, papers:vPapers, templates:vTemplates, bank:vBank, syllabus:vSyllabus, settings:vSettings};
+  m.innerHTML = (views[S.view] || vDashboard)();
+  afterRender();
+}
+function afterRender(){ document.querySelectorAll("textarea[data-auto]").forEach(autosize); }
+function autosize(t){ t.style.height = "auto"; t.style.height = Math.min(600, t.scrollHeight + 2) + "px"; }
+
+/* ---------------- Dashboard ---------------- */
+function allPapers(){ return [...S.papers].sort((a,b)=>b.updated-a.updated); }
+function vDashboard(){
+  const papers = allPapers();
+  const drafts = papers.filter(p => p.status !== "final").length;
+  const subjCount = classes().reduce((n,c)=>n+subjectsOf(c).length,0);
+  const loadedSubj = classes().reduce((n,c)=>n+subjectsOf(c).filter(s=>s.textbooks.some(t=>t.chapters.length)).length,0);
+  const recent = papers.slice(0,5);
+  return `
+  <section class="hero">
+    <div>
+      <span class="pill acc">CBSE · Session ${esc(S.syl.session)}</span>
+      <h1 style="margin-top:10px">NCERT Paper Maker</h1>
+      <p>Create CBSE-style Question Papers in Minutes. Pick the class, chapters and marks; Claude drafts the questions and answer key; you review, edit and download a print-ready PDF.</p>
+      <div class="row"><button class="btn primary" data-act="new">${IC.plus}Create New Question Paper</button><button class="btn" data-act="open-paper" data-id="example">Open the example paper</button></div>
+    </div>
+    <div class="mini-sheet" aria-hidden="true">
+      <div class="t">${esc(S.settings.school || "Your School Name")}<br><span style="font-weight:400">Unit Test 1 · Class 10 · Mathematics</span></div>
+      <div class="r"><b>Time Allowed: 45 minutes</b><b>Maximum Marks: 20</b></div>
+      <div style="text-align:center;font-weight:700;margin:6px 0 2px">SECTION A</div>
+      <div class="r"><span>1. The HCF of 96 and 404 is</span><b>[1]</b></div>
+      <div style="padding-left:12px">(a) 4 &nbsp; (b) 8 &nbsp; (c) 12 &nbsp; (d) 2</div>
+      <div class="r" style="margin-top:4px"><span>2. The sum of the zeroes of 2x² − 8x + 6 is</span><b>[1]</b></div>
+      <div style="text-align:center;font-weight:700;margin:6px 0 2px">SECTION C</div>
+      <div class="r"><span>9. Find the roots of 2x² − 7x + 3 = 0 …</span><b>[3]</b></div>
+    </div>
+  </section>
+  <div class="grid g3" style="margin-bottom:18px">
+    <div class="panel stat"><span class="v">${papers.length}</span><span class="l">Papers created</span></div>
+    <div class="panel stat"><span class="v">${drafts}</span><span class="l">Saved drafts</span></div>
+    <div class="panel stat"><span class="v">${classes().length}</span><span class="l">Classes available (${classes().join(", ")})</span></div>
+    <div class="panel stat"><span class="v">${loadedSubj}<span class="muted" style="font-size:1rem"> / ${subjCount}</span></span><span class="l">Subjects with chapters loaded</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">Recent question papers</h3>${papers.length?`<button class="btn ghost sm" data-act="go" data-v="papers">View all</button>`:""}</div>
+      ${recent.length ? `<div class="list">${recent.map(p=>`<button class="item" style="text-align:left;cursor:pointer" data-act="open-paper" data-id="${p.id}"><div><h3>${esc(p.name)}</h3><div class="meta"><span>Class ${p.config.classNo} · ${esc(subject(p.config.classNo,p.config.subjectId)?.name||"")}</span><span>${p.config.maxMarks} marks</span><span>${fmtDate(p.updated)}</span></div></div>${p.status==="final"?'<span class="pill ok">Final</span>':'<span class="pill">Draft</span>'}</button>`).join("")}</div>`
+        : `<div class="empty"><b>No papers yet</b>Your papers appear here as soon as you generate one. The example paper shows what a finished paper looks like.</div>`}
+    </div>
+    <div class="panel">
+      <h3>What's in the syllabus data</h3>
+      <div class="list small">${classes().map(c=>`<div><b>Class ${c}</b> <span class="muted">· ${subjectsOf(c).map(s=>{const n=s.textbooks.reduce((k,t)=>k+(t.status!=="skills"?t.chapters.length:0),0);const sk=s.textbooks.some(t=>t.status==="skills");return esc(s.name)+(n?` (${n} ch)`:sk?" (skills)":" (to add)");}).join(", ")}</span></div>`).join("")}</div>
+      <p class="small muted" style="margin:12px 0 0">Chapters marked "to add" have no chapter list yet. Add them under Syllabus Data and they become available for papers.</p>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Create wizard ---------------- */
+const STEPS = ["Class","Subject","Chapters","Configure","Question types","Review & edit","Download"];
+function newWizard(fromCfg){
+  const st = S.settings;
+  S.wiz = fromCfg ? {...clone(fromCfg), search:""} : {classNo:"", subjectId:"", chapterIds:[], weights:{}, search:"", examType:"unit", examName:"", maxMarks:25, marksCustom:"", duration:st.duration||60, durCustom:"", difficulty:"mixed", mix:{e:30,m:50,d:20}, source:"ai", types:[], sections:[], language:st.lang||"en", answerSpace: st.layout !== "compact"};
+  if (!fromCfg && st.defaultTpl){ const t = S.tpls.find(x=>x.id===st.defaultTpl); if (t) Object.assign(S.wiz, {examType:t.cfg.examType, maxMarks:t.cfg.maxMarks, duration:t.cfg.duration, difficulty:t.cfg.difficulty, mix:clone(t.cfg.mix), types:[...t.cfg.types], sections:clone(t.cfg.sections), tplApplied:t.name}); }
+  S.paper = null; S.step = 1; S.gen = null;
+}
+function vCreate(){
+  if (!S.wiz && !S.paper) newWizard();
+  const maxStep = S.paper ? 7 : stepReady();
+  const stepper = `<nav class="stepper" aria-label="Steps">${STEPS.map((l,i)=>{const n=i+1;const can = S.paper ? (n>=6 || true) : n<=maxStep; return `<button class="step ${n<S.step?"done":""} ${n===S.step?"cur":""}" data-act="step" data-n="${n}" ${can?"":"disabled"}><span>Step ${n}</span><b>${l}</b></button>`;}).join("")}</nav>`;
+  const body = [null, wClass, wSubject, wChapters, wConfig, wTypes, wReview, wDownload][S.step]();
+  const title = S.paper ? esc(S.paper.name) : "Create question paper";
+  return `<div class="head"><div><h1>${title}</h1><p>${S.paper ? `Class ${S.paper.config.classNo} · ${esc(subject(S.paper.config.classNo,S.paper.config.subjectId)?.name||"")} · ${S.paper.example?'<span class="pill warn">Example — duplicate it to keep changes</span>':(S.paper.status==="final"?"Final":"Draft")}` : "Work through the steps. You can go back to any finished step."}</p></div>${S.paper?`<div class="row"><button class="btn" data-act="new">${IC.plus}New paper</button></div>`:""}</div>${stepper}${body}`;
+}
+function stepReady(){ const w = S.wiz; if (!w.classNo) return 1; if (!w.subjectId) return 2; if (!w.chapterIds.length) return 3; return 5; }
+function wizFoot(back, nextLabel, nextAct, disabled, msg){
+  return `<div class="wiz-foot"><div>${back?`<button class="btn" data-act="step" data-n="${S.step-1}">Back</button>`:""}</div><div class="row">${msg?`<span class="small muted">${msg}</span>`:""}${nextLabel?`<button class="btn primary" data-act="${nextAct||"next"}" ${disabled?"disabled":""}>${nextLabel}</button>`:""}</div></div>`;
+}
+function wClass(){
+  const w = S.wiz;
+  return `<div class="cards">${classes().map(c=>`<button class="card" aria-pressed="${w.classNo===c}" data-act="pick-class" data-c="${c}"><small>Class</small><span class="big">${c}</span><small>${subjectsOf(c).length} subjects</small></button>`).join("")}</div>${w.tplApplied?`<p class="small muted">Default template "${esc(w.tplApplied)}" will be applied.</p>`:""}${wizFoot(false,"Next: Subject","next",!w.classNo)}`;
+}
+function wSubject(){
+  const w = S.wiz;
+  return `<div class="cards">${subjectsOf(w.classNo).map(s=>{const n=s.textbooks.reduce((k,t)=>k+t.chapters.filter(c=>c.inSyllabus).length,0);const stat=s.textbooks.some(t=>t.status==="verified")?'<span class="pill ok">Checked</span>':s.textbooks.some(t=>t.status==="unverified")?'<span class="pill warn">Confirm</span>':n?'<span class="pill">Skills</span>':'<span class="pill bad">No chapters</span>';return `<button class="card" aria-pressed="${w.subjectId===s.id}" data-act="pick-subject" data-s="${s.id}"><b style="font-size:1.05rem">${esc(s.name)}</b><small>${s.textbooks.map(t=>esc(t.title)).join(", ")||"No textbook added"}</small><span>${stat}</span></button>`;}).join("")}</div>${wizFoot(true,"Next: Chapters","next",!w.subjectId)}`;
+}
+function statusNote(t){
+  if (t.status==="verified") return `<span class="pill ok" title="${esc(t.source)}">Checked ${t.checked?fmtDate(t.checked):""}</span>`;
+  if (t.status==="unverified") return `<span class="pill warn" title="${esc(t.source)}">Not yet verified for ${esc(S.syl.session)}</span>`;
+  if (t.status==="skills") return `<span class="pill">Skill areas</span>`;
+  return `<span class="pill bad">Chapters not loaded</span>`;
+}
+function wChapters(){
+  const w = S.wiz, s = subject(w.classNo, w.subjectId);
+  const q = w.search.toLowerCase();
+  const unver = s.textbooks.filter(t=>t.status==="unverified"&&t.chapters.length);
+  const empties = s.textbooks.filter(t=>!t.chapters.length);
+  const sel = new Set(w.chapterIds);
+  const blocks = s.textbooks.filter(t=>t.chapters.length).map(t => {
+    const list = t.chapters.filter(c => c.inSyllabus && (!q || (`${c.no} ${c.title}`).toLowerCase().includes(q)));
+    const excluded = t.chapters.filter(c=>!c.inSyllabus).length;
+    return `<div class="chaps" style="margin-bottom:14px"><div class="tb-head"><div><b>${esc(t.title)}</b> <span class="small muted">· ${esc(t.edition)}</span> ${statusNote(t)}</div><div class="row"><button class="btn ghost sm" data-act="ch-all" data-tb="${t.id}">Select all</button><button class="btn ghost sm" data-act="ch-none" data-tb="${t.id}">Deselect all</button></div></div>
+      ${list.length ? list.map(c=>`<label class="chap"><input type="checkbox" data-act="ch-toggle" data-id="${c.id}" ${sel.has(c.id)?"checked":""}><span class="no">${t.status==="skills"?"•":c.no}</span><span>${esc(c.title)}</span>${sel.has(c.id)?`<span class="weight" title="Share of questions from this chapter">${["Low","Normal","High"].map((lbl,i)=>`<button type="button" data-act="ch-weight" data-id="${c.id}" data-w="${i+1}" aria-pressed="${(w.weights[c.id]||2)===i+1}">${lbl}</button>`).join("")}</span>`:"<span></span>"}</label>`).join("") : `<div class="chap"><span></span><span></span><span class="muted">No chapters match "${esc(w.search)}".</span></div>`}
+      ${excluded?`<div class="small muted" style="padding:8px 12px">${excluded} chapter(s) are marked as outside the exam syllabus and hidden.</div>`:""}</div>`;
+  }).join("");
+  return `<div class="row" style="margin-bottom:12px;justify-content:space-between"><input type="search" id="ch-search" placeholder="Search chapters by name or number" value="${esc(w.search)}" style="max-width:360px"><span class="small muted">${w.chapterIds.length} selected</span></div>
+    ${unver.length?`<div class="note warn" style="margin-bottom:12px"><span>⚠</span><span><b>Chapter list not yet verified for ${esc(S.syl.session)}.</b> ${unver.map(t=>esc(t.title)).join(", ")}: ${esc(SRC_MEM)}</span></div>`:""}
+    ${empties.length?`<div class="note info" style="margin-bottom:12px"><span>ℹ</span><span>No chapter list loaded yet for ${empties.map(t=>`<b>${esc(t.title)}</b>`).join(", ")}. <button class="btn sm" data-act="syl-jump" data-tb="${empties[0].id}">Add chapters</button></span></div>`:""}
+    ${blocks || `<div class="empty"><b>This subject has no chapters yet</b>Add the textbook's chapters under Syllabus Data, then come back.</div>`}
+    ${wizFoot(true,"Next: Configure","next",!w.chapterIds.length, w.chapterIds.length?"":"Select at least one chapter")}`;
+}
+function wConfig(){
+  const w = S.wiz;
+  const ets = EXAM_TYPES.filter(e=>!e.classes||e.classes.includes(w.classNo));
+  const mixSum = w.mix.e + w.mix.m + w.mix.d;
+  return `<div class="grid g2">
+    <div class="panel grid" style="gap:14px">
+      <h3 style="margin:0">Examination</h3>
+      <label class="f">Examination type<select id="cf-exam">${ets.map(e=>`<option value="${e.id}" ${w.examType===e.id?"selected":""}>${e.label}</option>`).join("")}</select></label>
+      <label class="f">Name printed on the paper<input type="text" id="cf-examname" placeholder="${esc(EXAM_TYPES.find(e=>e.id===w.examType)?.label||"")}" value="${esc(w.examName)}"></label>
+      <label class="f">Total marks<select id="cf-marks">${MARK_OPTS.map(m=>`<option value="${m}" ${(!w.marksCustom && w.maxMarks===m)?"selected":""}>${m} marks</option>`).join("")}<option value="custom" ${w.marksCustom?"selected":""}>Custom…</option></select></label>
+      ${w.marksCustom?`<label class="f">Custom maximum marks<input type="number" id="cf-marks-c" min="1" max="200" value="${w.maxMarks}"></label>`:""}
+      <label class="f">Exam duration<select id="cf-dur">${DUR_OPTS.map(m=>`<option value="${m}" ${(!w.durCustom && w.duration===m)?"selected":""}>${durLabel(m)}</option>`).join("")}<option value="custom" ${w.durCustom?"selected":""}>Custom…</option></select></label>
+      ${w.durCustom?`<label class="f">Custom duration (minutes)<input type="number" id="cf-dur-c" min="5" max="300" value="${w.duration}"></label>`:""}
+      <label class="f">Paper language (headings and labels)<select id="cf-lang"><option value="en" ${w.language==="en"?"selected":""}>English</option><option value="hi" ${w.language==="hi"?"selected":""}>Hindi (हिंदी)</option></select></label>
+    </div>
+    <div class="panel grid" style="gap:14px">
+      <h3 style="margin:0">Questions</h3>
+      <label class="f">Difficulty level<select id="cf-diff">${[["easy","Easy"],["moderate","Moderate"],["difficult","Difficult"],["mixed","Mixed difficulty"]].map(([v,l])=>`<option value="${v}" ${w.difficulty===v?"selected":""}>${l}</option>`).join("")}</select></label>
+      ${w.difficulty==="mixed"?`<div class="mix">${[["e","Easy"],["m","Moderate"],["d","Difficult"]].map(([k,l])=>`<span class="small">${l}</span><input type="range" min="0" max="100" step="5" value="${w.mix[k]}" data-mix="${k}" aria-label="${l} percent"><output>${w.mix[k]}%</output>`).join("")}</div>${mixSum!==100?`<div class="note bad small">The three shares add up to ${mixSum}%. Make them total 100%.</div>`:""}`:""}
+      <fieldset style="border:0;padding:0;margin:0" class="grid"><legend class="small" style="font-weight:600;color:var(--muted);margin-bottom:6px">Where questions come from</legend>
+        <div class="radio-cards">
+          ${[["ai","AI-generated only","Claude writes new questions. Each is marked for your review."],["bank","Verified questions only","Uses questions you have verified in your Question Bank."],["mixed","Verified first, then AI","Fills from your verified bank, and Claude writes the rest."]].map(([v,l,d])=>`<label><input type="radio" name="src" value="${v}" ${w.source===v?"checked":""} data-act="src"><span><b>${l}</b><small>${d}</small></span></label>`).join("")}
+        </div>
+      </fieldset>
+      ${(w.source!=="bank" && !S.ai)?`<div class="note warn small">AI generation isn't available in this view (you may need to open the page signed in to claude.ai and allow it). "Verified questions only" still works.</div>`:""}
+    </div>
+  </div>${wizFoot(true,"Next: Question types","next", w.difficulty==="mixed" && mixSum!==100)}`;
+}
+function autoSections(M, cat, allowed){
+  const pick = (...c) => c.find(x => allowed.includes(x)) || allowed[0];
+  const objT = pick("mcq","fib","oneword","tf") , vsaT = pick("vsa"), saT = pick("sa","numerical"), laT = pick("la","case","writing");
+  let obj = Math.round(M*0.2), vsa = Math.floor(M*0.2/2), sa = Math.floor(M*0.3/3);
+  let rem = M - obj - vsa*2 - sa*3; let la = Math.floor(rem/5); obj += rem - la*5;
+  const rows = [];
+  if (obj && objT) rows.push({type:objT, count:obj, marks:1});
+  if (vsa && vsaT) rows.push({type:vsaT, count:vsa, marks:2});
+  if (sa && saT) rows.push({type:saT, count:sa, marks:3});
+  if (la && laT) rows.push({type:laT, count:la, marks:5, choices: la>1?Math.min(2,la):0});
+  return rows.map((r,i)=>({id:uid(), label:LETTERS[i], type:r.type, count:r.count, marks:r.marks, choices:r.choices||0, attempt:null}));
+}
+function secTotal(r){ const n = (r.attempt && r.attempt < r.count) ? r.attempt : r.count; return (+n||0) * (+r.marks||0); }
+function distErrors(w){
+  const errs = [];
+  if (!w.sections.length) errs.push("Add at least one section.");
+  w.sections.forEach(r => {
+    if (!(r.count>0)) errs.push(`Section ${r.label}: number of questions must be at least 1.`);
+    if (!(r.marks>0)) errs.push(`Section ${r.label}: marks per question must be at least 1.`);
+    if (!w.types.includes(r.type)) errs.push(`Section ${r.label}: "${TYPES[r.type]?.label||r.type}" isn't one of the selected question types.`);
+    if (r.choices > r.count) errs.push(`Section ${r.label}: internal choices can't exceed the number of questions.`);
+    if (r.attempt && (r.attempt < 1 || r.attempt > r.count)) errs.push(`Section ${r.label}: "attempt any" must be between 1 and ${r.count}.`);
+  });
+  const tot = w.sections.reduce((s,r)=>s+secTotal(r),0);
+  if (tot !== w.maxMarks) errs.push(`Sections add up to ${tot} marks but the paper is set to ${w.maxMarks}.`);
+  if (!(w.maxMarks>0)) errs.push("Maximum marks must be more than 0.");
+  return errs;
+}
+function wTypes(){
+  const w = S.wiz, s = subject(w.classNo, w.subjectId);
+  const allowed = typesFor(s.cat, w.classNo);
+  if (!w.types.length) w.types = allowed.filter(t=>["mcq","vsa","sa","la"].includes(t));
+  if (!w.sections.length) w.sections = autoSections(w.maxMarks, s.cat, w.types);
+  const tot = w.sections.reduce((a,r)=>a+secTotal(r),0);
+  const qn = w.sections.reduce((a,r)=>a+(+r.count||0),0);
+  const errs = distErrors(w);
+  const groups = [["Objective",allowed.filter(t=>TYPES[t].obj)],["Short and long answer",allowed.filter(t=>!TYPES[t].obj)]];
+  return `<div class="panel" style="margin-bottom:16px"><h3>Question types for ${esc(s.name)}, Class ${w.classNo}</h3>
+    ${groups.map(([g,ts])=>`<div class="small" style="font-weight:600;color:var(--muted);margin:8px 0 4px">${g}</div><div class="types">${ts.map(t=>`<label><input type="checkbox" data-act="type-toggle" data-t="${t}" ${w.types.includes(t)?"checked":""}>${TYPES[t].label}</label>`).join("")}</div>`).join("")}
+  </div>
+  <div class="row" style="justify-content:space-between;margin-bottom:10px">
+    <div><h3 style="margin:0">Sections and marks</h3><p class="small muted" style="margin:4px 0 0">CBSE-style practice format you can change freely. It is not an official CBSE pattern.</p></div>
+    <div class="tally ${tot===w.maxMarks?"ok":"bad"}" aria-live="polite"><span class="n">${tot}</span><span class="muted">/ ${w.maxMarks} marks · ${qn} questions</span></div>
+  </div>
+  <div class="tablewrap"><table class="dist"><thead><tr><th>Section</th><th>Question type</th><th>Questions</th><th>Marks each</th><th title="Questions that get an OR alternative">Internal choices</th><th title="Leave blank to make all compulsory">Attempt any</th><th>Total</th><th></th></tr></thead><tbody>
+    ${w.sections.map((r,i)=>`<tr><td><b>${r.label}</b></td><td><select data-row="${i}" data-f="type">${w.types.map(t=>`<option value="${t}" ${r.type===t?"selected":""}>${TYPES[t].short}</option>`).join("")}${w.types.includes(r.type)?"":`<option value="${r.type}" selected>${TYPES[r.type]?.short} (not selected)</option>`}</select></td>
+      <td><input type="number" min="1" max="60" data-row="${i}" data-f="count" value="${r.count}" aria-label="Questions in section ${r.label}"></td>
+      <td><input type="number" min="1" max="20" data-row="${i}" data-f="marks" value="${r.marks}" aria-label="Marks each in section ${r.label}"></td>
+      <td><input type="number" min="0" max="${r.count}" data-row="${i}" data-f="choices" value="${r.choices||0}" aria-label="Internal choices in section ${r.label}"></td>
+      <td><input type="number" min="1" max="${r.count}" data-row="${i}" data-f="attempt" value="${r.attempt||""}" placeholder="all" aria-label="Attempt any, section ${r.label}"></td>
+      <td><b>${secTotal(r)}</b></td>
+      <td><div class="row" style="gap:0;flex-wrap:nowrap"><button class="btn ghost sm" data-act="row-up" data-i="${i}" aria-label="Move up" ${i?"":"disabled"}>${IC.up}</button><button class="btn ghost sm" data-act="row-down" data-i="${i}" aria-label="Move down" ${i<w.sections.length-1?"":"disabled"}>${IC.down}</button><button class="btn ghost sm danger" data-act="row-del" data-i="${i}" aria-label="Remove section">${IC.trash}</button></div></td></tr>`).join("")}
+  </tbody><tfoot><tr><td colspan="2">Total</td><td>${qn}</td><td></td><td></td><td></td><td>${tot}</td><td></td></tr></tfoot></table></div>
+  <div class="row" style="margin-top:10px"><button class="btn sm" data-act="row-add">${IC.plus}Add section</button><button class="btn sm" data-act="row-auto">Rebuild for ${w.maxMarks} marks</button><button class="btn sm" data-act="tpl-save-wiz">Save as template</button>${S.tpls.length?`<select id="tpl-apply" style="width:auto"><option value="">Apply a saved template…</option>${S.tpls.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("")}</select>`:""}</div>
+  ${errs.length?`<div class="note bad" style="margin-top:14px"><span>✕</span><span>${errs.map(esc).join("<br>")}</span></div>`:`<div class="note ok" style="margin-top:14px"><span>✓</span><span>Marks add up to ${w.maxMarks}. Ready to generate.</span></div>`}
+  ${wizFoot(true, `${IC.spark}Generate question paper`, "generate", errs.length>0)}`;
+}
+
+/* ---------------- Generation ---------------- */
+function diffList(n, diff, mix){
+  if (diff !== "mixed") return Array(n).fill(diff);
+  const shares = [["easy",mix.e],["moderate",mix.m],["difficult",mix.d]].map(([k,p])=>({k, exact:n*p/100}));
+  shares.forEach(s=>{s.n=Math.floor(s.exact); s.r=s.exact-s.n;});
+  let left = n - shares.reduce((a,s)=>a+s.n,0);
+  [...shares].sort((a,b)=>b.r-a.r).forEach(s=>{ if (left>0){ s.n++; left--; } });
+  return shares.flatMap(s=>Array(s.n).fill(s.k));
+}
+function chapterSlots(n, chapterIds, weights, offset){
+  const ws = chapterIds.map(id=>({id, w:weights[id]||2}));
+  const total = ws.reduce((a,x)=>a+x.w,0);
+  const alloc = ws.map(x=>({id:x.id, exact:n*x.w/total})); alloc.forEach(a=>{a.n=Math.floor(a.exact); a.r=a.exact-a.n;});
+  let left = n - alloc.reduce((a,x)=>a+x.n,0);
+  const order = alloc.map((a,i)=>({a, key:a.r + ((i - offset + alloc.length) % alloc.length === 0 ? 0.001 : 0)})).sort((x,y)=>y.key-x.key || 0);
+  // rotate tie-breaks so different sections favour different chapters
+  const rot = [...alloc.slice(offset % alloc.length), ...alloc.slice(0, offset % alloc.length)].sort((x,y)=>y.r-x.r);
+  rot.forEach(a=>{ if (left>0){ a.n++; left--; } });
+  const out = []; let more = true;
+  while (more){ more = false; alloc.forEach(a=>{ if (a.n>0){ out.push(a.id); a.n--; more = true; } }); }
+  return out;
+}
+const norm = s => String(s||"").toLowerCase().replace(/[^a-z0-9ऀ-ॿ ]+/g," ").split(/\s+/).filter(w=>w.length>2);
+function similar(a, b){ const A = new Set(norm(a)), B = new Set(norm(b)); if (!A.size || !B.size) return 0; let i=0; A.forEach(x=>{ if (B.has(x)) i++; }); return i / Math.min(A.size, B.size); }
+function isDup(text, others){ return others.some(o => similar(text, o) >= 0.85); }
+
+async function generatePaper(){
+  const w = S.wiz, s = subject(w.classNo, w.subjectId);
+  const examLabel = EXAM_TYPES.find(e=>e.id===w.examType)?.label || "Test";
+  const paper = {id:uid(), name:`Class ${w.classNo} ${s.name} – ${w.examName||examLabel}`, created:Date.now(), updated:Date.now(), status:"draft",
+    config:{...clone(w), examName: w.examName || examLabel}, syllabusVersion:{session:S.syl.session, textbooks: s.textbooks.filter(t=>t.chapters.some(c=>w.chapterIds.includes(c.id))).map(t=>`${t.title} (${t.edition}; ${t.status}${t.checked?" "+t.checked:""})`)},
+    sections: w.sections.map(r=>({id:r.id, label:r.label, type:r.type, instructions:defaultSecInstr(r, w.language), attempt:r.attempt||null, questions:[]}))};
+  delete paper.config.search;
+  // plan slots
+  w.sections.forEach((r, si) => {
+    const diffs = diffList(r.count, w.difficulty, w.mix);
+    // shuffle difficulty a little but keep easy-first ordering
+    const chs = chapterSlots(r.count, w.chapterIds, w.weights, si);
+    for (let k=0;k<r.count;k++) paper.sections[si].questions.push({id:uid(), pending:true, type:r.type, marks:r.marks, chapterId:chs[k], difficulty:diffs[k], wantOr: k < (r.choices||0)});
+  });
+  S.paper = paper; S.step = 6; S.edTab = "edit";
+  S.gen = {running:true, done:0, total:0, msg:"Preparing…", errors:[], skipped:[]};
+  render();
+  // Source A: bank
+  const used = new Set();
+  if (w.source !== "ai"){
+    paper.sections.forEach(sec => sec.questions.forEach((slot, k) => {
+      const cand = S.bank.filter(b => b.reviewed && b.classNo===w.classNo && b.subjectId===w.subjectId && b.type===slot.type && +b.marks===+slot.marks && w.chapterIds.includes(b.chapterId) && !used.has(b.id));
+      const exact = cand.find(b=>b.chapterId===slot.chapterId && b.difficulty===slot.difficulty) || cand.find(b=>b.chapterId===slot.chapterId) || cand[0];
+      if (exact){ used.add(exact.id); sec.questions[k] = {...mkQ({...clone(exact), source:"bank", reviewed:true, bankId:exact.id}), or: slot.wantOr ? null : null}; }
+    }));
+  }
+  if (w.source === "bank"){
+    const missing = countPending(paper);
+    S.gen = {running:false, done:0, total:0, msg:"", errors: missing ? [`${missing} question slot(s) couldn't be filled from your verified bank. Write them yourself, or switch the source to include AI and use "Fill missing with AI".`] : [], skipped:[]};
+    await persistPaper(); render(); return;
+  }
+  await fillPending(paper);
+}
+function countPending(p){ return p.sections.reduce((a,s)=>a+s.questions.filter(q=>q.pending).length,0); }
+function defaultSecInstr(r, lang){
+  const hi = lang==="hi"; const n = r.count, m = r.marks;
+  const att = r.attempt && r.attempt < n;
+  if (hi) return `${att?`किन्हीं ${r.attempt} प्रश्नों के उत्तर दीजिए। `:""}प्रत्येक प्रश्न ${m} अंक का है।${r.choices?` ${r.choices} प्रश्नों में आंतरिक विकल्प दिया गया है।`:""}`;
+  return `${att?`Answer any ${r.attempt} of the ${n} questions. `:""}Each question carries ${m} mark${m>1?"s":""}.${r.choices?` Internal choice is given in ${r.choices} question${r.choices>1?"s":""}.`:""}`;
+}
+function contextBlock(cfg){
+  const s = subject(cfg.classNo, cfg.subjectId);
+  const langLine = (s.cat==="hin") ? "Write every question, option, answer and solution in Hindi (Devanagari script), at the level of the class." : (s.cat==="skt" ? "Write questions in Sanskrit (Devanagari) where the content is Sanskrit; instructions may be in Hindi." : "Write in clear, simple Indian English suited to the class.");
+  return `Class: ${cfg.classNo} (CBSE, academic session ${S.syl.session}). Subject: ${s.name}.
+${langLine}
+Rules:
+- Write ORIGINAL questions aligned with NCERT concepts. Never copy textbook passages, exercises or published question banks.
+- Every fact must be correct. Recompute every number and check every option before answering. Use correct scientific terms and SI units.
+- Questions must be unambiguous and have one defensible correct answer (MCQs: exactly one correct option).
+- Plain text only. Write maths with Unicode (x², √5, π, θ, °, ≤, ≥, ×, ÷, ⅓ or 1/3). No LaTeX, no Markdown, no HTML.
+- Do not reference figures that are not described in words. For diagram questions, ask the student to draw or label a diagram described in words.
+- If you cannot write a reliable question for a chapter (for example the chapter is unfamiliar to you), do not invent content: list it under "skipped" with the reason.`;
+}
+const TYPE_GUIDE = {
+  mcq:"4 options in \"options\", exactly one correct; give its index (0-3) as \"answerIndex\".",
+  ar:"Text must contain 'Assertion (A): …' and 'Reason (R): …'. Use these 4 options exactly: [\"Both A and R are true and R is the correct explanation of A.\",\"Both A and R are true but R is not the correct explanation of A.\",\"A is true but R is false.\",\"A is false but R is true.\"] and set answerIndex.",
+  tf:"A statement to mark True or False. \"answer\" is \"True\" or \"False\" with a one-line reason.",
+  fib:"A sentence with one blank written as ________. \"answer\" is the word or phrase.",
+  match:"Provide \"pairs\": 4 or 5 [left, right] items correctly matched. The page shuffles the right column.",
+  oneword:"Answer is a single word or short term.",
+  vsa:"Answer in 1–2 sentences or 1–2 steps.",
+  sa:"Answer in about 3–4 sentences or a short multi-step solution.",
+  la:"Answer needs an extended explanation or multi-step solution.",
+  case:"Begin with a short original real-life case (3–5 sentences), then sub-questions labelled (i), (ii), (iii) whose marks add up to the question's marks, shown like (1), (2).",
+  competency:"Apply the concept to an unfamiliar real-life situation; test reasoning, not recall.",
+  numerical:"A numerical problem with realistic values and units; solution shows every step.",
+  diagram:"Ask the student to draw and label, or interpret, a diagram described in words.",
+  source:"Begin with a short ORIGINAL source extract (not copied from any book), then sub-questions (i), (ii), (iii).",
+  map:"Map work: ask the student to locate and label features on an outline map of India or the world. Name each feature clearly.",
+  passage:"Write an ORIGINAL unseen passage (150–250 words for Classes 6–8, 250–350 for 9–10) followed by sub-questions (i)… whose marks add up.",
+  grammar:"A grammar item (gap filling, transformation, error correction or editing) with one correct answer.",
+  writing:"A writing task (letter, notice, paragraph, story, etc.) with a clear word limit and cues."
+};
+function sectionPrompt(cfg, type, marks, slots, avoid){
+  const chs = [...new Set(slots.map(s=>s.chapterId))].map(id=>{const c = chapterById(cfg.classNo,cfg.subjectId,id); return {chapterId:id, chapter:c?`Ch ${c.no}: ${c.title} (${c.tb.title})`:id};});
+  const plan = slots.map((s,i)=>`${i+1}. chapterId=${s.chapterId}, difficulty=${s.difficulty}${s.wantOr?", ALSO give an \"or\" alternative (same type, marks, chapter)":""}`).join("\n");
+  return `You are an experienced CBSE teacher setting a question paper.
+${contextBlock(cfg)}
+
+Write exactly ${slots.length} question(s) of type "${TYPES[type].label}", each worth ${marks} mark(s).
+Type guidance: ${TYPE_GUIDE[type]}
+Chapters allowed (use only these):
+${chs.map(c=>`- ${c.chapterId}: ${c.chapter}`).join("\n")}
+Question plan, in order:
+${plan}
+${avoid.length?`Do not repeat or closely paraphrase these questions already in the paper:\n${avoid.slice(-40).map(t=>"- "+t.slice(0,140)).join("\n")}`:""}
+
+Reply with only JSON in this shape:
+{"questions":[{"chapterId":"…","difficulty":"easy|moderate|difficult","text":"…","options":["…","…","…","…"],"answerIndex":0,"pairs":[["…","…"]],"answer":"short correct answer","solution":"worked solution or model answer (suggested; other correct wordings acceptable)","markingScheme":"step-wise marks adding up to ${marks}","or":null}],"skipped":[{"chapterId":"…","reason":"…"}]}
+Include "options"/"answerIndex" only for MCQ or assertion–reason, "pairs" only for match the following, and "or" (an object with the same fields) only where the plan asks for it.`;
+}
+function validateAI(raw, slot, type, marks, allowedChapters){
+  if (!raw || typeof raw !== "object") return null;
+  const text = typeof raw.text === "string" ? raw.text.trim() : "";
+  if (text.length < 4) return null;
+  const chapterId = allowedChapters.includes(raw.chapterId) ? raw.chapterId : null;
+  if (raw.chapterId && !chapterId) return null; // wandered outside selected chapters
+  const q = {type, marks, text, chapterId: chapterId || slot.chapterId, difficulty: ["easy","moderate","difficult"].includes(raw.difficulty) ? raw.difficulty : slot.difficulty, answer:String(raw.answer||"").trim(), solution:String(raw.solution||"").trim(), scheme:String(raw.markingScheme||raw.scheme||"").trim(), source:"ai", reviewed:false};
+  if (TYPES[type].opts){
+    if (!Array.isArray(raw.options) || raw.options.length !== 4 || raw.options.some(o=>typeof o!=="string"||!o.trim())) return null;
+    const ai = Number(raw.answerIndex); if (!Number.isInteger(ai) || ai<0 || ai>3) return null;
+    q.options = raw.options.map(o=>o.trim()); q.answerIndex = ai; if (!q.answer) q.answer = `(${"abcd"[ai]}) ${q.options[ai]}`; else q.answer = `(${"abcd"[ai]}) ${q.options[ai]}`;
+  }
+  if (type === "match"){
+    if (!Array.isArray(raw.pairs) || raw.pairs.length < 3 || raw.pairs.some(p=>!Array.isArray(p)||p.length!==2||!p[0]||!p[1])) return null;
+    q.pairs = raw.pairs.map(p=>[String(p[0]).trim(), String(p[1]).trim()]);
+    q.matchOrder = shuffledOrder(q.pairs.length);
+    q.answer = q.pairs.map((p,i)=>`(${ROMAN[i]}) → (${"pqrstu"[q.matchOrder.indexOf(i)]}) ${p[1]}`).join("; ");
+  }
+  if (!q.answer && !q.solution) return null;
+  return q;
+}
+function shuffledOrder(n){ const a = [...Array(n).keys()]; for (let i=n-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } if (n>1 && a.every((v,i)=>v===i)) [a[0],a[1]]=[a[1],a[0]]; return a; }
+
+async function callAI(prompt){
+  if (!S.ai) throw {code:"unavailable", message:"AI generation isn't available in this view."};
+  return await S.ai.json(prompt, {modelTier:"complex", cache:false});
+}
+function aiErrMsg(e){
+  const c = e && e.code;
+  if (c==="not_granted") return "Claude wasn't given permission to answer from this page. Allow it when asked, then try again.";
+  if (c==="rate_limited") return "Too many requests right now. Wait a minute, then use Retry.";
+  if (c==="invalid_json") return "Claude's reply couldn't be read as questions. Use Retry; it usually works the second time.";
+  if (c==="prompt_too_large") return "The request was too large. Try fewer questions per section.";
+  if (c==="unavailable"||c==="sampling_disabled"||c==="not_declared") return "AI generation isn't available in this view. Open the page on claude.ai while signed in.";
+  return (e && e.message) ? `Generation failed: ${e.message}` : "Generation failed. Check your connection and use Retry.";
+}
+async function fillPending(paper){
+  const cfg = paper.config;
+  const jobs = [];
+  paper.sections.forEach((sec, si) => {
+    const idx = sec.questions.map((q,k)=>q.pending?k:-1).filter(k=>k>=0);
+    for (let i=0;i<idx.length;i+=8) jobs.push({si, ids: idx.slice(i,i+8).map(k=>sec.questions[k].id)});
+  });
+  S.gen = {running:true, done:0, total:jobs.length, msg:"", errors:[], skipped:[]};
+  if (!jobs.length){ S.gen.running = false; render(); return; }
+  if (!S.ai){ S.gen = {running:false, done:0, total:0, errors:["AI generation isn't available in this view, so the remaining questions are empty. Write them yourself, or open the page on claude.ai while signed in and use Retry."], skipped:[]}; await persistPaper(); render(); return; }
+  for (const job of jobs){
+    const sec = paper.sections[job.si];
+    const slots = job.ids.map(id=>sec.questions.find(q=>q.id===id)).filter(q=>q && q.pending);
+    if (!slots.length){ S.gen.done++; continue; }
+    S.gen.msg = `Writing Section ${sec.label}: ${TYPES[sec.type].short} (${slots.length} question${slots.length>1?"s":""})`; renderGenStatus();
+    const avoid = paper.sections.flatMap(s=>s.questions.filter(q=>!q.pending).map(q=>q.text));
+    try{
+      const res = await callAI(sectionPrompt(cfg, sec.type, slots[0].marks, slots, avoid));
+      const list = Array.isArray(res) ? res : (res && Array.isArray(res.questions) ? res.questions : []);
+      if (res && Array.isArray(res.skipped)) res.skipped.forEach(sk => S.gen.skipped.push(`${chapterLabel(cfg.classNo,cfg.subjectId,sk.chapterId)}: ${sk.reason||"no reason given"}`));
+      let li = 0, bad = 0;
+      slots.forEach((slot) => {
+        const k = sec.questions.findIndex(q=>q.id===slot.id); if (k < 0 || !sec.questions[k].pending) return;
+        while (li < list.length){
+          const v = validateAI(list[li++], slot, sec.type, slot.marks, cfg.chapterIds);
+          if (!v){ bad++; continue; }
+          if (isDup(v.text, paper.sections.flatMap(s=>s.questions.filter(q=>!q.pending).map(q=>q.text)))){ bad++; continue; }
+          let orQ = null;
+          if (slot.wantOr && list[li-1].or){ orQ = validateAI(list[li-1].or, slot, sec.type, slot.marks, cfg.chapterIds); }
+          sec.questions[k] = mkQ({...v, or: orQ ? mkQ(orQ) : null});
+          return;
+        }
+      });
+      if (bad) S.gen.errors.push(`Section ${sec.label}: ${bad} question(s) failed checks (wrong format, outside the selected chapters, or a duplicate) and were dropped.`);
+    }catch(e){
+      S.gen.errors.push(`Section ${sec.label}: ${aiErrMsg(e)}`);
+    }
+    S.gen.done++; renderGenStatus();
+    if (S.view === "create" && S.step === 6) refreshEditorBody();
+  }
+  S.gen.running = false;
+  const miss = countPending(paper);
+  if (miss) S.gen.errors.push(`${miss} question slot(s) are still empty. Use "Fill missing with AI" or write them yourself.`);
+  paper.updated = Date.now();
+  await persistPaper();
+  render();
+  toast(miss ? "Paper generated with gaps. See the notes above the questions." : "Question paper generated. Review each AI question before use.");
+}
+async function persistPaper(){ if (!S.paper || S.paper.example) return; S.paper.updated = Date.now(); const i = S.papers.findIndex(p=>p.id===S.paper.id); if (i>=0) S.papers[i] = S.paper; else S.papers.push(S.paper); await save("paper", S.paper); }
+let saveTimer = null;
+function softSave(){ if (!S.paper || S.paper.example) return; clearTimeout(saveTimer); saveTimer = setTimeout(()=>persistPaper(), 900); }
+
+async function regenOne(si, k){
+  const p = S.paper, sec = p.sections[si], old = sec.questions[k];
+  if (!S.ai){ toast("AI generation isn't available in this view.", true); return; }
+  old.busy = true; refreshEditorBody();
+  const slot = {chapterId:old.chapterId, difficulty:old.difficulty, wantOr: !!old.or || !!old.wantOr};
+  try{
+    const avoid = p.sections.flatMap(s=>s.questions.filter(q=>!q.pending).map(q=>q.text));
+    const res = await callAI(sectionPrompt(p.config, sec.type, old.marks, [slot], avoid));
+    const list = Array.isArray(res) ? res : (res?.questions || []);
+    const v = list.map(x=>validateAI(x, slot, sec.type, old.marks, p.config.chapterIds)).find(Boolean);
+    if (!v) throw {message: res?.skipped?.[0]?.reason ? `Claude skipped this chapter: ${res.skipped[0].reason}` : "The new question failed checks. Try again."};
+    const orQ = slot.wantOr && list[0]?.or ? validateAI(list[0].or, slot, sec.type, old.marks, p.config.chapterIds) : null;
+    const kk = sec.questions.indexOf(old); if (kk < 0) throw {message:"That question was removed while the new one was being written."};
+    sec.questions[kk] = mkQ({...v, lines: old.lines ?? linesFor(sec.type, old.marks), or: orQ ? mkQ(orQ) : null});
+    toast("Question replaced. Review it before use.");
+    softSave();
+  }catch(e){ old.busy = false; toast(e.code ? aiErrMsg(e) : (e.message||"Couldn't regenerate."), true); }
+  refreshEditorBody();
+}
+function replaceFromBank(si, k){
+  const p = S.paper, sec = p.sections[si], old = sec.questions[k];
+  const usedIds = new Set(p.sections.flatMap(s=>s.questions.map(q=>q.bankId)).filter(Boolean));
+  const usedTexts = p.sections.flatMap(s=>s.questions.map(q=>q.text));
+  const pool = [...S.bank, ...STARTER_BANK].filter(b => b.classNo===p.config.classNo && b.subjectId===p.config.subjectId && b.chapterId===old.chapterId && b.type===sec.type && !usedIds.has(b.id) && !usedTexts.includes(b.text));
+  if (!pool.length){ toast("No other question from this chapter and type is in your bank."); return; }
+  const b = pool.sort((x,y)=>(y.reviewed?1:0)-(x.reviewed?1:0))[0];
+  sec.questions[k] = mkQ({...clone(b), marks: old.marks, lines: old.lines, source: b.starter ? "starter" : "bank", reviewed: !!b.reviewed, bankId:b.id});
+  toast(b.reviewed ? "Replaced with a verified bank question." : "Replaced with a starter question. Check it before use.");
+  softSave(); refreshEditorBody();
+}
+
+/* ---------------- Review & edit ---------------- */
+function paperTotal(p){ return p.sections.reduce((a,s)=>{ const qs = s.questions; const marks = qs.map(q=>+q.marks||0).sort((x,y)=>y-x); const n = (s.attempt && s.attempt < qs.length) ? s.attempt : qs.length; return a + marks.slice(0,n).reduce((x,y)=>x+y,0); },0); }
+function coverage(p){
+  const m = {}; p.sections.forEach(s=>s.questions.forEach(q=>{ if (!q.pending) m[q.chapterId] = (m[q.chapterId]||0) + (+q.marks||0); }));
+  return p.config.chapterIds.map(id=>({id, marks:m[id]||0}));
+}
+function wReview(){
+  const p = S.paper; if (!p) return "";
+  return `<div class="tabs" role="tablist"><button role="tab" aria-selected="${S.edTab==="edit"}" data-act="edtab" data-t="edit">Edit questions</button><button role="tab" aria-selected="${S.edTab==="preview"}" data-act="edtab" data-t="preview">Preview paper</button></div>
+  <div id="gen-status">${genStatusHTML()}</div>
+  <div class="ed-layout"><div id="ed-body" style="min-width:0">${S.edTab==="edit"?editorHTML():previewHTML()}</div><aside class="ed-side" id="ed-side">${sideHTML()}</aside></div>
+  ${wizFoot(false, "Next: Download", "next-dl", false)}`;
+}
+function genStatusHTML(){
+  const g = S.gen; if (!g) return "";
+  let h = "";
+  if (g.running) h += `<div class="panel" style="margin-bottom:14px"><div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="row"><span class="spin" style="color:var(--accent)"></span><b>Generating questions</b></span><span class="small muted">${g.done} of ${g.total} batches</span></div><div class="progress"><i style="width:${g.total?Math.round(100*g.done/g.total):5}%"></i></div><p class="small muted" style="margin:8px 0 0">${esc(g.msg||"")} · Your settings are kept if anything fails.</p></div>`;
+  if (g.errors.length) h += `<div class="note bad" style="margin-bottom:10px"><span>✕</span><span>${g.errors.map(esc).join("<br>")}${!g.running && countPending(S.paper) ? `<br><button class="btn sm" style="margin-top:6px" data-act="fill-missing">${IC.spark}Fill missing with AI</button>`:""}</span></div>`;
+  if (g.skipped.length) h += `<div class="note warn" style="margin-bottom:10px"><span>⚠</span><span><b>Claude declined some chapters rather than guess:</b><br>${g.skipped.map(esc).join("<br>")}</span></div>`;
+  return h;
+}
+function renderGenStatus(){ const el = $("#gen-status"); if (el) el.innerHTML = genStatusHTML(); }
+function refreshEditorBody(){ const b = $("#ed-body"); if (b){ b.innerHTML = S.edTab==="edit"?editorHTML():previewHTML(); b.querySelectorAll("textarea[data-auto]").forEach(autosize); } const sd = $("#ed-side"); if (sd) sd.innerHTML = sideHTML(); }
+function sideHTML(){
+  const p = S.paper, tot = paperTotal(p), cfgMax = p.config.maxMarks;
+  const qn = p.sections.reduce((a,s)=>a+s.questions.length,0);
+  const aiUnrev = p.sections.reduce((a,s)=>a+s.questions.filter(q=>q.source==="ai"&&!q.reviewed).length,0);
+  const cov = coverage(p); const maxCov = Math.max(1,...cov.map(c=>c.marks));
+  const dupes = dupCount(p);
+  return `<div class="panel"><div class="tally ${tot===cfgMax?"ok":"bad"}"><span class="n">${tot}</span><span class="muted">/ ${cfgMax} marks</span></div>
+    <p class="small muted" style="margin:6px 0 0">${qn} questions${tot!==cfgMax?` · <span style="color:var(--bad)">Marks differ from the planned ${cfgMax}. The paper prints the actual total, ${tot}.</span>`:""}</p>
+    <div class="grid" style="gap:6px;margin-top:12px">
+      ${aiUnrev?`<div class="note ai small"><span>✦</span><span>${aiUnrev} AI question${aiUnrev>1?"s":""} still need your review. Tick "Reviewed" on each.</span></div>`:`<div class="note ok small"><span>✓</span><span>Every question has been reviewed or comes from your verified bank.</span></div>`}
+      ${dupes?`<div class="note warn small"><span>⚠</span><span>${dupes} possible duplicate${dupes>1?"s":""} flagged below.</span></div>`:""}
+    </div>
+    <div class="row" style="margin-top:12px">${p.example?`<button class="btn primary sm" data-act="dup-paper" data-id="example">Duplicate to edit</button>`:`<button class="btn primary sm" data-act="save-draft">Save draft</button><button class="btn sm" data-act="regen-all">${IC.spark}Regenerate paper</button>`}</div>
+    <label class="row small" style="margin-top:10px;gap:8px"><input type="checkbox" data-act="toggle-key" ${S.showKey?"checked":""}>Show answer key while editing</label>
+    <label class="row small" style="margin-top:6px;gap:8px"><input type="checkbox" data-act="toggle-space" ${p.config.answerSpace?"checked":""}>Print answer lines on the paper</label>
+  </div>
+  <div class="panel"><h3>Chapter coverage</h3><div class="cov">${cov.map(c=>{const ch=chapterById(p.config.classNo,p.config.subjectId,c.id);return `<div class="cov-row"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(ch?.title||"")}">${ch?`${ch.tb.status==="skills"?"":ch.no+". "}${esc(ch.title)}`:"?"}</span><b style="text-align:right">${c.marks}</b><div class="bar"><i style="width:${Math.round(100*c.marks/maxCov)}%"></i></div></div>`;}).join("")}</div>${cov.some(c=>!c.marks)?`<p class="small muted" style="margin:8px 0 0">Chapters with 0 marks have no question yet.</p>`:""}</div>`;
+}
+function dupCount(p){ const t = p.sections.flatMap(s=>s.questions.filter(q=>!q.pending).map(q=>q.text)); let n=0; t.forEach((x,i)=>{ if (t.some((y,j)=>j<i && similar(x,y)>=0.85)) n++; }); return n; }
+function chapterOptions(p, cur){ return p.config.chapterIds.map(id=>`<option value="${id}" ${id===cur?"selected":""}>${esc(chapterLabel(p.config.classNo,p.config.subjectId,id))}</option>`).join(""); }
+function srcPill(q){
+  if (q.source==="ai") return q.reviewed ? '<span class="pill ok">AI · reviewed</span>' : '<span class="pill ai">AI · needs review</span>';
+  if (q.source==="bank") return '<span class="pill ok">Verified bank</span>';
+  if (q.source==="starter") return q.reviewed ? '<span class="pill ok">Starter · reviewed</span>' : '<span class="pill warn">Starter · check</span>';
+  return '<span class="pill">Your question</span>';
+}
+function qFields(q, path, isOr){
+  const t = TYPES[q.type];
+  let h = `<textarea class="qt" data-auto data-q="${path}" data-f="text" aria-label="Question text">${esc(q.text)}</textarea>`;
+  if (t.opts) h += `<div class="opts">${[0,1,2,3].map(i=>`<div class="opt"><input type="radio" name="ans-${path}" data-q="${path}" data-f="answerIndex" value="${i}" ${q.answerIndex===i?"checked":""} title="Mark as correct"><span class="small">(${"abcd"[i]})</span><input type="text" data-q="${path}" data-f="opt${i}" value="${esc(q.options[i]||"")}" aria-label="Option ${"abcd"[i]}"></div>`).join("")}</div>`;
+  if (q.type==="match") h += `<div class="grid" style="gap:6px">${(q.pairs.length?q.pairs:[["",""],["",""],["",""],["",""]]).map((pr,i)=>`<div class="opts" style="grid-template-columns:1fr 1fr"><input type="text" data-q="${path}" data-f="pairL${i}" value="${esc(pr[0])}" aria-label="Column A item ${i+1}"><input type="text" data-q="${path}" data-f="pairR${i}" value="${esc(pr[1])}" aria-label="Correct match ${i+1}"></div>`).join("")}<span class="small muted">Write each item next to its correct match. The printed paper shuffles column B.</span></div>`;
+  if (q.image) h += `<div class="row"><img class="qimg" src="${q.image}" alt="Figure for this question"><button class="btn ghost sm danger" data-act="img-del" data-q="${path}">Remove figure</button></div>`;
+  if (S.showKey) h += `<div class="keybox"><label>Answer</label><textarea data-auto data-q="${path}" data-f="answer">${esc(q.answer)}</textarea><label>Solution / model answer</label><textarea data-auto data-q="${path}" data-f="solution">${esc(q.solution)}</textarea><label>Marking scheme</label><textarea data-auto data-q="${path}" data-f="scheme">${esc(q.scheme)}</textarea></div>`;
+  return h;
+}
+function editorHTML(){
+  const p = S.paper; let n = 0;
+  const allTexts = [];
+  return p.sections.map((sec, si) => `<section class="sec">
+    <div class="sec-h"><h3>Section ${esc(sec.label)} · ${TYPES[sec.type]?.short||""}</h3><span class="small muted">${sec.questions.length} question${sec.questions.length===1?"":"s"}</span></div>
+    <label class="f" style="margin-bottom:10px">Section instructions<input type="text" data-sec="${si}" data-f="instructions" value="${esc(sec.instructions)}"></label>
+    ${sec.questions.map((q,k) => {
+      n++;
+      if (q.pending) return `<div class="q missing"><div class="q-top"><span class="q-num">${n}.</span><span class="pill bad">Empty</span><span class="small muted">${esc(chapterLabel(p.config.classNo,p.config.subjectId,q.chapterId))} · ${q.marks} mark${q.marks>1?"s":""}</span><div class="q-tools"><button class="btn ghost sm" data-act="regen" data-s="${si}" data-k="${k}">${IC.spark}Generate</button><button class="btn ghost sm" data-act="write-own" data-s="${si}" data-k="${k}">Write my own</button><button class="btn ghost sm" data-act="bank-swap" data-s="${si}" data-k="${k}">${IC.swap}From bank</button><button class="btn ghost sm danger" data-act="q-del" data-s="${si}" data-k="${k}" aria-label="Delete">${IC.trash}</button></div></div></div>`;
+      const dup = allTexts.some(t=>similar(t,q.text)>=0.85); allTexts.push(q.text);
+      const path = `${si}.${k}`;
+      return `<div class="q ${q.source==="ai"&&!q.reviewed?"ai-unrev":""}">
+        <div class="q-top"><span class="q-num">${n}.</span>${srcPill(q)}${dup?'<span class="pill warn">Possible duplicate</span>':""}${q.busy?'<span class="spin" style="color:var(--ai)"></span>':""}
+          <div class="q-tools">
+            <button class="btn ghost sm" data-act="q-up" data-s="${si}" data-k="${k}" aria-label="Move up" ${k?"":"disabled"}>${IC.up}</button>
+            <button class="btn ghost sm" data-act="q-down" data-s="${si}" data-k="${k}" aria-label="Move down" ${k<sec.questions.length-1?"":"disabled"}>${IC.down}</button>
+            <button class="btn ghost sm" data-act="regen" data-s="${si}" data-k="${k}" title="Write a new question for this chapter with AI">${IC.spark}Regenerate</button>
+            <button class="btn ghost sm" data-act="bank-swap" data-s="${si}" data-k="${k}" title="Replace with a bank question from the same chapter">${IC.swap}Replace</button>
+            <label class="btn ghost sm" title="Add a figure">${IC.img}<input type="file" accept="image/*" hidden data-act="img-add" data-q="${path}"></label>
+            <button class="btn ghost sm danger" data-act="q-del" data-s="${si}" data-k="${k}" aria-label="Delete question">${IC.trash}</button>
+          </div></div>
+        ${qFields(q, path)}
+        <div class="q-meta">
+          <select data-q="${path}" data-f="chapterId" aria-label="Chapter">${chapterOptions(p, q.chapterId)}</select>
+          <select data-q="${path}" data-f="difficulty" aria-label="Difficulty">${["easy","moderate","difficult"].map(d=>`<option ${q.difficulty===d?"selected":""}>${d}</option>`).join("")}</select>
+          <label class="row" style="gap:4px">Marks <input type="number" min="0" max="20" data-q="${path}" data-f="marks" value="${q.marks}"></label>
+          ${TYPES[q.type].obj?"":`<label class="row" style="gap:4px">Answer lines <input type="number" min="0" max="30" data-q="${path}" data-f="lines" value="${q.lines}"></label>`}
+          <label class="row" style="gap:4px"><input type="checkbox" data-q="${path}" data-f="reviewed" ${q.reviewed?"checked":""}>Reviewed</label>
+          <button class="btn ghost sm" data-act="to-bank" data-s="${si}" data-k="${k}">Save to bank</button>
+        </div>
+        ${q.or ? `<div class="orbox"><div class="row" style="justify-content:space-between"><b class="small">OR (internal choice)</b><button class="btn ghost sm danger" data-act="or-del" data-s="${si}" data-k="${k}">Remove choice</button></div>${qFields(q.or, path+".or", true)}</div>` : `<div><button class="btn ghost sm" data-act="or-add" data-s="${si}" data-k="${k}">${IC.plus}Add OR choice</button></div>`}
+      </div>`;
+    }).join("")}
+    <button class="btn sm" data-act="q-add" data-s="${si}">${IC.plus}Add custom question to Section ${esc(sec.label)}</button>
+  </section>`).join("");
+}
+function previewHTML(){ return `<div class="paper-frame"><div class="paper-sheet">${paperHTML(S.paper, "paper")}</div></div>`; }
+
+/* ---------------- Paper renderer (preview, PDF, Word) ---------------- */
+function paperHeader(p){
+  const st = S.settings, l = L[p.config.language] || L.en, s = subject(p.config.classNo, p.config.subjectId);
+  const gi = [];
+  const n = p.sections.reduce((a,x)=>a+x.questions.length,0);
+  if (p.config.language==="hi"){
+    gi.push(`इस प्रश्न-पत्र में ${p.sections.length} खंड और ${n} प्रश्न हैं।`);
+    if (p.sections.some(x=>x.questions.some(q=>q.or))) gi.push("कुछ प्रश्नों में आंतरिक विकल्प दिया गया है।");
+  } else {
+    gi.push(`This question paper has ${p.sections.length} section${p.sections.length>1?"s":""} (${p.sections.map(x=>x.label).join(", ")}) and ${n} questions.`);
+    gi.push(p.sections.some(x=>x.attempt && x.attempt < x.questions.length) ? "All questions are compulsory unless a section says otherwise." : "All questions are compulsory.");
+    if (p.sections.some(x=>x.questions.some(q=>q.or))) gi.push("Internal choice is given in some questions. Attempt only one of the alternatives in such questions.");
+    gi.push("Marks for each question are shown against it.");
+  }
+  (st.instructions||"").split("\n").map(x=>x.trim()).filter(Boolean).forEach(x=>gi.push(x));
+  return `<div class="pp-head">${st.logo?`<img src="${st.logo}" alt="">`:""}<div><div class="pp-school">${esc(st.school || "School Name")}</div>${st.headerLine?`<div class="pp-sub">${esc(st.headerLine)}</div>`:""}<div class="pp-exam">${esc(p.config.examName||"")} · ${l.session} ${esc(st.session||S.syl.session)}</div></div></div>
+    <div class="pp-meta"><span><b>${l.cls}:</b> ${esc(p.config.classNo)}</span><span><b>${l.sub}:</b> ${esc(s?.name||"")}</span><span><b>${l.date}:</b> ${p.config.date?esc(fmtDate(p.config.date)):"____________"}</span></div>
+    <div class="pp-student"><span><b>${l.name}:</b> ______________________________</span><span><b>${l.roll}:</b> __________</span></div>
+    <div class="pp-mt"><span>${l.time}: ${esc(p.config.language==="hi"?durHi(p.config.duration):durLabel(p.config.duration))}</span><span>${l.maxm}: ${paperTotal(p)}</span></div>
+    <div class="pp-gi"><b>${l.gi}:</b><ol>${gi.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></div>`;
+}
+function durHi(m){ return m < 60 ? `${m} मिनट` : (m%60 ? `${Math.floor(m/60)} घंटे ${m%60} मिनट` : `${m/60} घंटे`); }
+function qBodyHTML(q, p, withLines){
+  const l = L[p.config.language] || L.en;
+  let h = `<div>${nl2br(q.text)}</div>`;
+  if (q.image) h += `<img class="pq-img" src="${q.image}" alt="">`;
+  if (TYPES[q.type]?.opts && q.options?.length){ const short = q.options.every(o=>o.length<=32); h += `<div class="pq-opts ${short?"":"one"}">${q.options.map((o,i)=>`<span>(${"abcd"[i]}) ${esc(o)}</span>`).join("")}</div>`; }
+  if (q.type==="match" && q.pairs?.length){ const ord = q.matchOrder && q.matchOrder.length===q.pairs.length ? q.matchOrder : q.pairs.map((_,i)=>i); h += `<table><tr><th>${l.colA}</th><th>${l.colB}</th></tr>${q.pairs.map((pr,i)=>`<tr><td>(${ROMAN[i]}) ${esc(pr[0])}</td><td>(${"pqrstu"[i]}) ${esc(q.pairs[ord[i]][1])}</td></tr>`).join("")}</table>`; }
+  if (withLines && q.lines > 0) h += `<div class="pq-lines">${"<div></div>".repeat(q.lines)}</div>`;
+  return h;
+}
+function paperHTML(p, mode){
+  const l = L[p.config.language] || L.en; const withLines = p.config.answerSpace !== false;
+  let n = 0;
+  const lang = p.config.language==="hi" ? "hi" : "en";
+  let h = `<div class="pp" lang="${lang}">`;
+  if (mode !== "key" && mode !== "solutions-only"){
+    h += paperHeader(p);
+    p.sections.forEach(sec => {
+      h += `<div class="pp-sec"><h4>${l.sec} ${esc(sec.label)}</h4>${sec.instructions?`<p class="pp-si">${esc(sec.instructions)}</p>`:""}`;
+      sec.questions.forEach(q => { n++; if (q.pending){ h += `<div class="pq"><div class="pq-n">${n}.</div><div class="pq-b"><i>[Question not written yet]</i></div><div class="pq-m">[${q.marks}]</div></div>`; return; }
+        h += `<div class="pq"><div class="pq-n">${n}.</div><div class="pq-b">${qBodyHTML(q,p,withLines)}${q.or?`<div class="pq-or">${l.or}</div>${qBodyHTML(q.or,p,withLines)}`:""}</div><div class="pq-m">[${q.marks}]</div></div>`; });
+      h += `</div>`;
+    });
+    h += `<div class="pp-end">${l.end}</div>`;
+  }
+  if (mode === "key" || mode === "paper+key" || mode === "paper+sol" || mode === "solutions-only"){
+    const detailed = mode === "paper+sol" || mode === "solutions-only";
+    h += `<div class="pp-key ${mode.startsWith("paper")?"pp-pagebreak":""}">`;
+    if (!mode.startsWith("paper")) h += `<div class="pp-head" style="margin-bottom:8px"><div><div class="pp-school">${esc(S.settings.school||"School Name")}</div><div class="pp-exam">${esc(p.config.examName||"")} · ${l.cls} ${esc(p.config.classNo)} · ${esc(subject(p.config.classNo,p.config.subjectId)?.name||"")}</div></div></div>`;
+    h += `<h4>${detailed?l.sol:l.key}</h4>`;
+    let m = 0;
+    p.sections.forEach(sec => { h += `<div style="font-weight:700;margin:8px 0 4px">${l.sec} ${esc(sec.label)}</div>`;
+      sec.questions.forEach(q => { m++; if (q.pending) return;
+        const one = (x, tag) => `${tag?`<p><b>${tag}</b></p>`:""}<p><span class="lab">${l.ans}:</span> ${nl2br(x.answer||"—")}</p>${detailed&&x.solution?`<p><span class="lab">${l.solution}:</span> ${nl2br(x.solution)}</p>`:""}${detailed&&x.scheme?`<p><span class="lab">${l.scheme}:</span> ${nl2br(x.scheme)}</p>`:""}`;
+        h += `<div class="pk"><b>${m}.</b><div>${one(q, q.or?"(i)":"")}${q.or?one(q.or, `${l.or} (ii)`):""}</div></div>`; });
+    });
+    h += `</div>`;
+  }
+  return h + `</div>`;
+}
+
+/* ---------------- Download ---------------- */
+function wDownload(){
+  const p = S.paper; const pend = countPending(p);
+  const unrev = p.sections.reduce((a,s)=>a+s.questions.filter(q=>(q.source==="ai"||q.source==="starter")&&!q.reviewed).length,0);
+  const tot = paperTotal(p);
+  const opts = [["paper","Question paper only","Student copy. No answers anywhere in the file."],["paper+key","Question paper with answer key","Answer key starts on a new page after the paper."],["paper+sol","Question paper with detailed solutions","Solutions and marking scheme after the paper."],["separate","Question paper and answer key as separate PDFs","Two files: a student copy and a teacher's key with solutions."]];
+  return `<div class="grid g2">
+    <div class="panel grid" style="gap:14px">
+      <h3 style="margin:0">Download</h3>
+      <div class="radio-cards">${opts.map(([v,l,d])=>`<label><input type="radio" name="dlm" value="${v}" data-act="dlmode" ${S.dlMode===v?"checked":""}><span><b>${l}</b><small>${d}</small></span></label>`).join("")}</div>
+      <label class="f">Date on the paper (optional)<input type="date" id="dl-date" value="${esc(p.config.date||"")}"></label>
+      <div class="row"><button class="btn primary" data-act="dl-pdf" id="dl-pdf-btn">${IC.dl}Download PDF</button><button class="btn" data-act="dl-doc">${IC.dl}Word file (.doc)</button></div>
+      <p class="small muted" style="margin:0">A4 portrait, black and white, with "Page X of Y" in the footer. The Word file opens in Microsoft Word or Google Docs for further editing.</p>
+    </div>
+    <div class="panel grid" style="gap:10px">
+      <h3 style="margin:0">Before you print</h3>
+      ${pend?`<div class="note bad small"><span>✕</span><span>${pend} question slot(s) are empty. They print as "[Question not written yet]".</span></div>`:""}
+      ${unrev?`<div class="note ai small"><span>✦</span><span>${unrev} AI or starter question(s) aren't marked reviewed. Check facts, numbers and answers before you print.</span></div>`:`<div class="note ok small"><span>✓</span><span>All questions are reviewed or verified.</span></div>`}
+      <div class="note ${tot===p.config.maxMarks?"ok":"warn"} small"><span>${tot===p.config.maxMarks?"✓":"⚠"}</span><span>Maximum marks printed: ${tot}${tot!==p.config.maxMarks?` (planned ${p.config.maxMarks})`:""}.</span></div>
+      ${!S.settings.school?`<div class="note info small"><span>ℹ</span><span>Add your school name and logo in Settings so they appear in the header.</span></div>`:""}
+      <div class="row">${p.example?`<button class="btn sm" data-act="dup-paper" data-id="example">Duplicate to edit</button>`:`<button class="btn sm" data-act="mark-final">${p.status==="final"?"Marked final ✓":"Mark as final"}</button>`}<button class="btn sm" data-act="step" data-n="6">Back to editing</button></div>
+    </div>
+  </div>
+  <h3 style="margin:22px 0 10px">Preview</h3>
+  <div class="paper-frame"><div class="paper-sheet">${paperHTML(p, S.dlMode==="separate"?"paper":S.dlMode)}</div></div>`;
+}
+async function buildPdf(p, mode){
+  if (typeof html2pdf === "undefined") throw {message:"The PDF library didn't load. Check your connection and reload the page."};
+  const host = document.createElement("div"); host.className = "pdf-host"; host.innerHTML = paperHTML(p, mode); document.body.appendChild(host);
+  try{
+    try{ await document.fonts.ready; }catch(e){}
+    if (p.config.language === "hi" || /[ऀ-ॿ]/.test(host.textContent)){ try{ await document.fonts.load('16px "Noto Serif Devanagari"'); }catch(e){ toast("Hindi font didn't load; Hindi text may use a fallback font.", true); } }
+    const opt = {margin:[12,12,16,12], image:{type:"jpeg", quality:0.96}, html2canvas:{scale:2, useCORS:true, backgroundColor:"#ffffff", logging:false}, jsPDF:{unit:"mm", format:"a4", orientation:"portrait"}, pagebreak:{mode:["css","legacy"], avoid:[".pq",".pk",".pq-opts","table",".pp-gi",".pp-head"]}};
+    const pdf = await html2pdf().set(opt).from(host.firstElementChild).toPdf().get("pdf");
+    const total = pdf.internal.getNumberOfPages(); const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
+    const foot = (S.settings.footer || S.settings.school || "");
+    const ascii = foot && !/[^\x00-\x7F]/.test(foot);
+    for (let i=1;i<=total;i++){ pdf.setPage(i); pdf.setFontSize(9); pdf.setTextColor(70); pdf.text(`Page ${i} of ${total}`, W-12, H-8, {align:"right"}); if (ascii) pdf.text(foot.slice(0,80), 12, H-8); pdf.setDrawColor(150); pdf.line(12, H-12, W-12, H-12); }
+    return pdf.output("blob");
+  } finally { host.remove(); }
+}
+const fileBase = p => p.name.replace(/[^\wऀ-ॿ\- ]+/g,"").replace(/\s+/g,"_").slice(0,60) || "question_paper";
+async function saveFile(filename, blob){
+  if (!S.dl){ const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = filename; document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(url), 4000); return {status:"saved"}; }
+  try{ const r = await S.dl.save({filename, data:blob}); return r; }
+  catch(e){ if (e && e.code==="declined") throw {message:"Download cancelled."}; throw {message: e?.code==="too_large" ? "The file is too large to download. Remove or shrink some figures." : `Download failed${e?.message?": "+e.message:""}.`}; }
+}
+async function downloadPdf(){
+  const p = S.paper, btn = $("#dl-pdf-btn");
+  if (btn){ btn.disabled = true; btn.innerHTML = `<span class="spin"></span>Building PDF…`; }
+  try{
+    if (S.dlMode === "separate"){
+      const a = await buildPdf(p, "paper"); await saveFile(fileBase(p)+"_question_paper.pdf", a);
+      const b = await buildPdf(p, "solutions-only"); await saveFile(fileBase(p)+"_answer_key.pdf", b);
+      toast("Both PDFs saved.");
+    } else {
+      const blob = await buildPdf(p, S.dlMode); await saveFile(fileBase(p) + (S.dlMode==="paper"?"":S.dlMode==="paper+key"?"_with_key":"_with_solutions") + ".pdf", blob);
+      toast("PDF saved.");
+    }
+    if (!p.example){ p.lastDownloaded = Date.now(); softSave(); }
+  }catch(e){ toast(e.message || "Couldn't build the PDF. Try again.", true); }
+  finally{ const b2 = $("#dl-pdf-btn"); if (b2){ b2.disabled = false; b2.innerHTML = `${IC.dl}Download PDF`; } }
+}
+async function downloadDoc(){
+  const p = S.paper; const mode = S.dlMode==="separate" ? "paper+sol" : S.dlMode;
+  const css = `body{font-family:'Noto Serif','Mangal',Georgia,serif;font-size:12pt;color:#000}.pp-head{text-align:center;border-bottom:1.5pt solid #000;padding-bottom:6pt}.pp-head img{width:60px;height:60px}.pp-school{font-size:16pt;font-weight:bold}.pp-exam{font-weight:bold}.pp-meta span,.pp-student span,.pp-mt span{margin-right:24pt}.pp-mt{font-weight:bold;border-bottom:1pt solid #000;padding:4pt 0}.pp-sec h4{text-align:center;letter-spacing:2pt}.pp-si{text-align:center;font-style:italic}.pq{margin:0 0 10pt}.pq-n{font-weight:bold;display:inline}.pq-m{font-weight:bold;text-align:right}.pq-opts span{margin-right:24pt}.pq-or{text-align:center;font-weight:bold}.pq-lines div{border-bottom:1pt solid #999;height:22pt}table{border-collapse:collapse}td,th{border:1pt solid #000;padding:3pt 6pt}.pp-end{text-align:center}.pp-pagebreak{page-break-before:always}.pk{margin-bottom:6pt}.lab{font-weight:bold}`;
+  // Word handles block layout better than grid: rewrite question rows as simple tables
+  const body = paperHTML(p, mode).replace(/<div class="pq"><div class="pq-n">(.*?)<\/div><div class="pq-b">/g, '<table class="pq" style="width:100%;border:0"><tr><td style="border:0;width:28pt;vertical-align:top"><b>$1</b></td><td style="border:0;vertical-align:top">').replace(/<\/div><div class="pq-m">(\[\d+\])<\/div><\/div>/g, '</td><td style="border:0;width:30pt;vertical-align:top;text-align:right"><b>$1</b></td></tr></table>');
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(p.name)}</title><style>@page{size:21cm 29.7cm;margin:1.5cm}${css}</style></head><body>${body}</body></html>`;
+  try{ await saveFile(fileBase(p)+".doc", new Blob(["﻿", html], {type:"application/msword"})); toast("Word file saved."); }
+  catch(e){ toast(e.message, true); }
+}
+
+/* ---------------- My papers ---------------- */
+function vPapers(){
+  const f = S.filters;
+  const list = allPapers().filter(p => (!f.cls || p.config.classNo===f.cls) && (!f.sub || (subject(p.config.classNo,p.config.subjectId)?.name===f.sub)) && (!f.q || (p.name + " " + p.config.chapterIds.map(id=>chapterLabel(p.config.classNo,p.config.subjectId,id)).join(" ")).toLowerCase().includes(f.q.toLowerCase())) && (!f.from || p.updated >= Date.parse(f.from)));
+  const subjNames = [...new Set(classes().flatMap(c=>subjectsOf(c).map(s=>s.name)))];
+  const ex = examplePaper();
+  return `<div class="head"><div><h1>My Question Papers</h1><p>${S.papers.length} saved paper${S.papers.length===1?"":"s"} · ${Store.mode==="db"?"stored privately in your Claude account":Store.mode==="local"?"stored in this browser only":"not stored (storage unavailable)"}</p></div><button class="btn primary" data-act="new">${IC.plus}Create New Question Paper</button></div>
+  <div class="row" style="margin-bottom:14px"><input type="search" id="pf-q" placeholder="Search by name or chapter" value="${esc(f.q)}" style="max-width:280px"><select id="pf-cls" style="width:auto"><option value="">All classes</option>${classes().map(c=>`<option ${f.cls===c?"selected":""} value="${c}">Class ${c}</option>`).join("")}</select><select id="pf-sub" style="width:auto"><option value="">All subjects</option>${subjNames.map(s=>`<option ${f.sub===s?"selected":""}>${esc(s)}</option>`).join("")}</select><label class="row small" style="gap:6px">Since<input type="date" id="pf-from" value="${esc(f.from||"")}" style="width:auto"></label></div>
+  <div class="list">
+    ${list.map(p=>paperItem(p)).join("") || `<div class="empty"><b>${S.papers.length?"No papers match these filters":"No saved papers yet"}</b>${S.papers.length?"Clear a filter to see more.":"Generated papers are saved here automatically as drafts."}</div>`}
+    <div class="small muted" style="margin-top:8px">Built-in example</div>
+    ${paperItem(ex)}
+  </div>`;
+}
+function paperItem(p){
+  const s = subject(p.config.classNo,p.config.subjectId);
+  const ex = p.example;
+  return `<div class="item"><div style="min-width:0"><h3>${esc(p.name)} ${ex?'<span class="pill warn">Example</span>':p.status==="final"?'<span class="pill ok">Final</span>':'<span class="pill">Draft</span>'}</h3>
+    <div class="meta"><span>Class ${p.config.classNo} · ${esc(s?.name||"?")}</span><span>${paperTotal(p)} marks · ${durLabel(p.config.duration)}</span><span>${p.config.chapterIds.length} chapter${p.config.chapterIds.length>1?"s":""}</span><span>Updated ${fmtDate(p.updated)}</span><span>Syllabus ${esc(p.syllabusVersion?.session||"")}</span></div></div>
+    <div class="acts"><button class="btn sm" data-act="open-paper" data-id="${p.id}">Open</button><button class="btn sm" data-act="open-dl" data-id="${p.id}">${IC.dl}PDF</button><button class="btn ghost sm" data-act="dup-paper" data-id="${p.id}">Duplicate</button><button class="btn ghost sm" data-act="reuse-paper" data-id="${p.id}" title="Start a new paper with these settings">Reuse settings</button>${ex?"":`<button class="btn ghost sm" data-act="rename-paper" data-id="${p.id}">Rename</button><button class="btn ghost sm danger" data-act="del-paper" data-id="${p.id}">Delete</button>`}</div></div>`;
+}
+function findPaper(id){ return id==="example" ? examplePaper() : S.papers.find(p=>p.id===id); }
+
+/* ---------------- Templates ---------------- */
+function vTemplates(){
+  return `<div class="head"><div><h1>Saved Templates</h1><p>A template stores exam type, marks, duration, difficulty, question types and the section layout. Chapters are chosen fresh each time.</p></div></div>
+  ${S.tpls.length ? `<div class="list">${S.tpls.map(t=>`<div class="item"><div><h3>${esc(t.name)} ${S.settings.defaultTpl===t.id?'<span class="pill acc">Default</span>':""}</h3><div class="meta"><span>${esc(EXAM_TYPES.find(e=>e.id===t.cfg.examType)?.label||"")}</span><span>${t.cfg.maxMarks} marks · ${durLabel(t.cfg.duration)}</span><span>${t.cfg.sections.map(r=>`${r.label}: ${r.count}×${r.marks} ${TYPES[r.type]?.short}`).join(" · ")}</span></div></div><div class="acts"><button class="btn sm" data-act="tpl-use" data-id="${t.id}">Use</button><button class="btn ghost sm" data-act="tpl-default" data-id="${t.id}">${S.settings.defaultTpl===t.id?"Unset default":"Make default"}</button><button class="btn ghost sm" data-act="tpl-rename" data-id="${t.id}">Rename</button><button class="btn ghost sm danger" data-act="tpl-del" data-id="${t.id}">Delete</button></div></div>`).join("")}</div>`
+  : `<div class="empty"><b>No templates yet</b>In step 5 of Create Question Paper, set up your sections and choose "Save as template". Your school's usual unit-test or half-yearly layout is a good first template.</div>`}`;
+}
+function tplFromWiz(name){ const w = S.wiz; return {id:uid(), name, created:Date.now(), cfg:{examType:w.examType, maxMarks:w.maxMarks, duration:w.duration, difficulty:w.difficulty, mix:clone(w.mix), types:[...w.types], sections:clone(w.sections)}}; }
+
+/* ---------------- Question bank ---------------- */
+function vBank(){
+  const f = S.bankF;
+  const all = [...S.bank, ...STARTER_BANK.filter(st=>!S.bank.some(b=>b.id===st.id))];
+  const list = all.filter(b => (!f.cls || b.classNo===f.cls) && (!f.sub || subject(b.classNo,b.subjectId)?.name===f.sub) && (!f.status || (f.status==="verified"?b.reviewed:!b.reviewed)) && (!f.q || b.text.toLowerCase().includes(f.q.toLowerCase())));
+  const subjNames = [...new Set(classes().flatMap(c=>subjectsOf(c).map(s=>s.name)))];
+  const ver = S.bank.filter(b=>b.reviewed).length;
+  return `<div class="head"><div><h1>Question Bank</h1><p>${ver} verified question${ver===1?"":"s"}. Papers set to "Verified questions only" draw from these. Save any reviewed question from the paper editor to add it here.</p></div></div>
+  <div class="row" style="margin-bottom:14px"><input type="search" id="bf-q" placeholder="Search question text" value="${esc(f.q)}" style="max-width:280px"><select id="bf-cls" style="width:auto"><option value="">All classes</option>${classes().map(c=>`<option ${f.cls===c?"selected":""} value="${c}">Class ${c}</option>`).join("")}</select><select id="bf-sub" style="width:auto"><option value="">All subjects</option>${subjNames.map(s=>`<option ${f.sub===s?"selected":""}>${esc(s)}</option>`).join("")}</select><select id="bf-st" style="width:auto"><option value="">Any status</option><option value="verified" ${f.status==="verified"?"selected":""}>Verified</option><option value="unverified" ${f.status==="unverified"?"selected":""}>Not verified</option></select></div>
+  <div class="list">${list.map(b=>`<div class="item"><div style="min-width:0"><div class="meta" style="margin-bottom:4px">${b.reviewed?'<span class="pill ok">Verified</span>':b.starter?'<span class="pill warn">Starter · not verified</span>':'<span class="pill">Not verified</span>'}<span>Class ${b.classNo} · ${esc(subject(b.classNo,b.subjectId)?.name||"")}</span><span>${esc(chapterLabel(b.classNo,b.subjectId,b.chapterId))}</span><span>${TYPES[b.type]?.short} · ${b.marks} mark${b.marks>1?"s":""} · ${b.difficulty}</span>${b.verifiedOn?`<span>Verified ${fmtDate(b.verifiedOn)}</span>`:""}</div><div style="white-space:pre-wrap">${esc(b.text)}</div>${b.options?.length?`<div class="small muted">${b.options.map((o,i)=>`(${"abcd"[i]}) ${esc(o)}`).join("   ")}</div>`:""}<div class="small" style="margin-top:4px"><b>Answer:</b> ${esc(b.answer)}</div><div class="small muted">Source: ${esc(b.ref||"")}</div></div>
+    <div class="acts">${b.reviewed?`<button class="btn ghost sm" data-act="bank-unverify" data-id="${b.id}">Unverify</button>`:`<button class="btn sm" data-act="bank-verify" data-id="${b.id}">Mark verified</button>`}${b.starter&&!S.bank.some(x=>x.id===b.id)?"":`<button class="btn ghost sm danger" data-act="bank-del" data-id="${b.id}">Delete</button>`}</div></div>`).join("") || `<div class="empty"><b>No questions match</b>Change a filter, or save questions from a paper.</div>`}</div>`;
+}
+
+/* ---------------- Syllabus manager ---------------- */
+function vSyllabus(){
+  const sel = S.sylSel; const c = sel.cls;
+  const subs = subjectsOf(c); if (!subs.find(s=>s.id===sel.sub)) sel.sub = subs[0]?.id || "";
+  const s = subject(c, sel.sub); if (s && !s.textbooks.find(t=>t.id===sel.tb)) sel.tb = s.textbooks[0]?.id || "";
+  const t = s?.textbooks.find(x=>x.id===sel.tb);
+  return `<div class="head"><div><h1>Syllabus Data</h1><p>Academic session → class → subject → textbook → chapters. Textbook availability and exam-syllabus inclusion are tracked separately.</p></div><label class="f" style="min-width:160px">Academic session<input type="text" id="syl-session" value="${esc(S.syl.session)}"></label></div>
+  <div class="row" style="margin-bottom:14px"><div class="tabs" style="margin:0;border:0">${classes().map(x=>`<button aria-selected="${x===c}" data-act="syl-cls" data-c="${x}">Class ${x}</button>`).join("")}</div></div>
+  <div class="grid" style="grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:16px" id="syl-grid">
+    <div class="panel" style="padding:10px"><div class="small muted" style="padding:4px 6px;font-weight:600">Subjects</div>${subs.map(x=>`<button class="nav" ${x.id===sel.sub?'aria-current="page"':""} data-act="syl-sub" data-s="${x.id}">${esc(x.name)}</button>`).join("")}
+      <form id="add-sub" class="grid" style="gap:6px;margin-top:10px;padding:6px"><input type="text" id="new-sub" placeholder="New subject name" aria-label="New subject name"><select id="new-sub-cat" aria-label="Subject type">${Object.entries(CAT_NAMES).map(([k,v])=>`<option value="${k}" ${k==="other"?"selected":""}>${v} question types</option>`).join("")}</select><button class="btn sm">Add subject</button></form></div>
+    <div class="grid" style="gap:14px;min-width:0">
+      ${s ? `<div class="panel"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(s.name)} · Class ${c}</h3>${subs.length>1?`<button class="btn ghost sm danger" data-act="syl-sub-del">Remove subject</button>`:""}</div>
+        <div class="tabs" style="margin-top:10px">${s.textbooks.map(x=>`<button aria-selected="${x.id===sel.tb}" data-act="syl-tb" data-t="${x.id}">${esc(x.title)}</button>`).join("")}<button data-act="syl-tb-add">+ Textbook</button></div>
+        ${t ? `<div class="grid g2" style="gap:10px">
+          <label class="f">Textbook title<input type="text" data-tbf="title" value="${esc(t.title)}"></label>
+          <label class="f">Edition<input type="text" data-tbf="edition" value="${esc(t.edition)}"></label>
+          <label class="f" style="grid-column:1/-1">Source of this chapter list<textarea data-auto data-tbf="source">${esc(t.source)}</textarea></label></div>
+          <div class="row" style="margin-top:10px">${statusNote(t)}<button class="btn sm" data-act="syl-verify">Mark verified today</button>${t.status==="verified"?`<button class="btn ghost sm" data-act="syl-unverify">Mark not verified</button>`:""}<button class="btn ghost sm danger" data-act="syl-tb-del">Remove textbook</button></div>
+          <div class="chaps" style="margin-top:14px">${t.chapters.map((ch,i)=>`<div class="chap ${ch.inSyllabus?"":"off"}" style="grid-template-columns:auto 4rem minmax(0,1fr) auto"><input type="checkbox" data-chf="inSyllabus" data-i="${i}" ${ch.inSyllabus?"checked":""} title="Included in the exam syllabus"><input type="number" data-chf="no" data-i="${i}" value="${ch.no}" aria-label="Chapter number"><input type="text" data-chf="title" data-i="${i}" value="${esc(ch.title)}" aria-label="Chapter title"><button class="btn ghost sm danger" data-act="syl-ch-del" data-i="${i}" aria-label="Remove chapter">${IC.trash}</button></div>`).join("") || `<div class="empty" style="border:0">No chapters yet. Add them from the NCERT textbook's contents page.</div>`}</div>
+          <form id="add-ch" class="row" style="margin-top:10px"><input type="text" id="new-ch" placeholder="New chapter title" style="flex:1;min-width:200px" aria-label="New chapter title"><button class="btn sm">${IC.plus}Add chapter</button></form>
+          <details style="margin-top:10px"><summary class="small" style="cursor:pointer">Paste many chapters at once</summary><textarea id="bulk-ch" placeholder="One chapter title per line" style="margin-top:6px"></textarea><button class="btn sm" data-act="syl-bulk" style="margin-top:6px">Add these chapters</button></details>
+          <p class="small muted">Untick a chapter to keep it in the textbook but exclude it from the exam syllabus.</p>` : `<div class="empty">No textbook yet. Add one with "+ Textbook".</div>`}</div>` : `<div class="empty">No subjects for this class.</div>`}
+      <div class="row"><button class="btn ghost sm danger" data-act="syl-reset">Reset all syllabus data to the built-in version</button></div>
+    </div>
+  </div>
+  <style>@media (max-width:700px){#syl-grid{grid-template-columns:minmax(0,1fr)!important}}</style>`;
+}
+let sylTimer = null;
+function saveSyl(){ clearTimeout(sylTimer); sylTimer = setTimeout(()=>save("syl", {...S.syl, id:"main"}), 700); }
+
+/* ---------------- Settings ---------------- */
+function vSettings(){
+  const st = S.settings;
+  return `<div class="head"><div><h1>Settings</h1><p>Applied automatically to every new paper and to the header of every PDF.</p></div></div>
+  <div class="grid g2">
+    <div class="panel grid" style="gap:12px"><h3 style="margin:0">School and teacher</h3>
+      <label class="f">School name<input type="text" data-set="school" value="${esc(st.school)}" placeholder="e.g. Kendriya Vidyalaya No. 1, Gurugram"></label>
+      <label class="f">Second header line (optional)<input type="text" data-set="headerLine" value="${esc(st.headerLine)}" placeholder="Affiliation No., address or motto"></label>
+      <div class="f">School logo<div class="row">${st.logo?`<img src="${st.logo}" alt="School logo" style="width:56px;height:56px;object-fit:contain;border:1px solid var(--line);border-radius:6px;background:#fff">`:""}<label class="btn sm">${IC.img}${st.logo?"Change logo":"Upload logo"}<input type="file" accept="image/*" hidden id="logo-in"></label>${st.logo?`<button class="btn ghost sm danger" data-act="logo-del">Remove</button>`:""}</div></div>
+      <label class="f">Teacher name<input type="text" data-set="teacher" value="${esc(st.teacher)}"></label>
+      <label class="f">Footer text (English letters print best)<input type="text" data-set="footer" value="${esc(st.footer)}" placeholder="Defaults to the school name"></label>
+    </div>
+    <div class="panel grid" style="gap:12px"><h3 style="margin:0">Paper defaults</h3>
+      <label class="f">Academic session<input type="text" data-set="session" value="${esc(st.session)}"></label>
+      <label class="f">Default exam duration<select data-set="duration">${DUR_OPTS.map(m=>`<option value="${m}" ${+st.duration===m?"selected":""}>${durLabel(m)}</option>`).join("")}</select></label>
+      <label class="f">Default paper language<select data-set="lang"><option value="en" ${st.lang==="en"?"selected":""}>English</option><option value="hi" ${st.lang==="hi"?"selected":""}>Hindi (हिंदी)</option></select></label>
+      <label class="f">Default layout<select data-set="layout"><option value="lines" ${st.layout!=="compact"?"selected":""}>Answer lines on the paper</option><option value="compact" ${st.layout==="compact"?"selected":""}>Compact (separate answer sheet)</option></select></label>
+      <label class="f">Default question distribution<select data-set="defaultTpl"><option value="">Build automatically from total marks</option>${S.tpls.map(t=>`<option value="${t.id}" ${st.defaultTpl===t.id?"selected":""}>${esc(t.name)}</option>`).join("")}</select></label>
+      <label class="f">School-specific general instructions (one per line)<textarea data-auto data-set="instructions">${esc(st.instructions)}</textarea></label>
+      <label class="f">Appearance<select data-set="theme"><option value="" ${!st.theme?"selected":""}>Match my device</option><option value="light" ${st.theme==="light"?"selected":""}>Light</option><option value="dark" ${st.theme==="dark"?"selected":""}>Dark</option></select></label>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px"><h3>Where your work is saved</h3><p class="small" style="margin:0">${Store.mode==="db"?"Papers, templates, your question bank and syllabus edits are saved privately to your Claude account, so they follow you to other devices. Other people who open this page can't see them.":Store.mode==="local"?"Saved in this browser only. Clearing browser data removes them, and they won't appear on other devices. Open the page signed in to claude.ai to save to your account.":"This view can't save anything. Open the page on claude.ai to keep your work."}</p></div>`;
+}
+let setTimer = null;
+function saveSettings(){ clearTimeout(setTimer); setTimer = setTimeout(()=>save("settings", S.settings), 600); }
+function applyTheme(){ const t = S.settings.theme; if (t) document.documentElement.setAttribute("data-theme", t); else document.documentElement.removeAttribute("data-theme"); }
+
+/* ---------------- Image helper ---------------- */
+function readImage(file, maxW, cb){
+  if (!file || !file.type.startsWith("image/")){ toast("Choose an image file (PNG or JPG).", true); return; }
+  const fr = new FileReader();
+  fr.onload = () => { const img = new Image(); img.onload = () => { const s = Math.min(1, maxW / img.width); const c = document.createElement("canvas"); c.width = Math.round(img.width*s); c.height = Math.round(img.height*s); const x = c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(img,0,0,c.width,c.height); cb(c.toDataURL("image/jpeg", 0.85)); }; img.onerror = () => toast("That image couldn't be read.", true); img.src = fr.result; };
+  fr.readAsDataURL(file);
+}
+
+/* ---------------- Question path helpers ---------------- */
+function qAt(path){ const [si,k,or] = path.split("."); const q = S.paper.sections[+si].questions[+k]; return or ? q.or : q; }
+
+/* ---------------- Events ---------------- */
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const a = el.dataset.act; const w = S.wiz; const p = S.paper;
+  if (el.tagName === "INPUT" && (el.type==="checkbox"||el.type==="radio"||el.type==="file")) return; // handled in change
+  switch(a){
+    case "go": if (el.dataset.v==="create" && !S.wiz && !S.paper) newWizard(); go(el.dataset.v); break;
+    case "modal-close": if (e.target === el) $("#modal").innerHTML = ""; break;
+    case "new": newWizard(); go("create"); break;
+    case "step": { const n = +el.dataset.n; if (n>=6 && !S.paper) return; if (n<=5 && S.paper){ confirmBox("Going back to set-up starts a new paper using these settings. This paper stays saved in My Question Papers.", "Start new from these settings", ()=>{ const cfg = S.paper.config; newWizard(cfg); S.step = n; render(); }); return; } S.step = n; render(); window.scrollTo(0,0); break; }
+    case "next": S.step++; render(); window.scrollTo(0,0); break;
+    case "pick-class": if (w.classNo !== el.dataset.c){ w.classNo = el.dataset.c; w.subjectId = ""; w.chapterIds = []; w.weights = {}; w.types = []; w.sections = []; } S.step = 2; render(); break;
+    case "pick-subject": if (w.subjectId !== el.dataset.s){ w.subjectId = el.dataset.s; w.chapterIds = []; w.weights = {}; w.types = []; w.sections = []; const s = subject(w.classNo, w.subjectId); if (s.cat==="hin" || s.cat==="skt") w.language = "hi"; } S.step = 3; render(); break;
+    case "ch-all": { const t = subject(w.classNo,w.subjectId).textbooks.find(x=>x.id===el.dataset.tb); const ids = t.chapters.filter(c=>c.inSyllabus).map(c=>c.id); w.chapterIds = [...new Set([...w.chapterIds, ...ids])]; render(); break; }
+    case "ch-none": { const t = subject(w.classNo,w.subjectId).textbooks.find(x=>x.id===el.dataset.tb); const ids = new Set(t.chapters.map(c=>c.id)); w.chapterIds = w.chapterIds.filter(i=>!ids.has(i)); render(); break; }
+    case "ch-weight": e.preventDefault(); w.weights[el.dataset.id] = +el.dataset.w; render(); break;
+    case "syl-jump": S.sylSel = {cls:w.classNo, sub:w.subjectId, tb:el.dataset.tb}; go("syllabus"); break;
+    case "row-add": { const t = w.types[0] || "sa"; w.sections.push({id:uid(), label:LETTERS[w.sections.length], type:t, count:1, marks:TYPES[t].marks, choices:0, attempt:null}); render(); break; }
+    case "row-del": w.sections.splice(+el.dataset.i,1); w.sections.forEach((r,i)=>r.label=LETTERS[i]); render(); break;
+    case "row-up": case "row-down": { const i = +el.dataset.i, j = a==="row-up"?i-1:i+1; [w.sections[i], w.sections[j]] = [w.sections[j], w.sections[i]]; w.sections.forEach((r,x)=>r.label=LETTERS[x]); render(); break; }
+    case "row-auto": w.sections = autoSections(w.maxMarks, subject(w.classNo,w.subjectId).cat, w.types); render(); break;
+    case "tpl-save-wiz": promptBox("Template name", `${w.maxMarks}-mark ${EXAM_TYPES.find(x=>x.id===w.examType)?.label||"paper"}`, "Save template", async name => { const t = tplFromWiz(name); S.tpls.push(t); await save("tpl", t); toast(`Template "${name}" saved.`); render(); }); break;
+    case "generate": if (distErrors(w).length){ toast("Fix the marks distribution first.", true); return; } if (w.source!=="bank" && !S.ai){ toast("AI generation isn't available here. Choose \"Verified questions only\" in step 4, or open the page on claude.ai.", true); return; } generatePaper(); break;
+    case "edtab": S.edTab = el.dataset.t; refreshEditorBody(); document.querySelectorAll('[data-act="edtab"]').forEach(b=>b.setAttribute("aria-selected", b.dataset.t===S.edTab)); break;
+    case "next-dl": S.step = 7; render(); window.scrollTo(0,0); break;
+    case "fill-missing": if (!S.ai){ toast("AI generation isn't available in this view.", true); return; } fillPending(p); break;
+    case "regen": { const si=+el.dataset.s, k=+el.dataset.k; const q = p.sections[si].questions[k]; if (q.pending){ q.wantOr = q.wantOr||false; } regenOne(si,k); break; }
+    case "bank-swap": replaceFromBank(+el.dataset.s, +el.dataset.k); break;
+    case "write-own": { const si=+el.dataset.s,k=+el.dataset.k; const old = p.sections[si].questions[k]; p.sections[si].questions[k] = mkQ({type:old.type, marks:old.marks, chapterId:old.chapterId, difficulty:old.difficulty, text:"", options:TYPES[old.type].opts?["","","",""]:[], answerIndex:TYPES[old.type].opts?0:null, source:"custom", reviewed:true}); softSave(); refreshEditorBody(); break; }
+    case "q-del": { const si=+el.dataset.s,k=+el.dataset.k; confirmBox("Delete this question? The paper total updates automatically.", "Delete question", ()=>{ p.sections[si].questions.splice(k,1); softSave(); refreshEditorBody(); }); break; }
+    case "q-up": case "q-down": { const si=+el.dataset.s,i=+el.dataset.k,j=a==="q-up"?i-1:i+1; const qs = p.sections[si].questions; [qs[i],qs[j]]=[qs[j],qs[i]]; softSave(); refreshEditorBody(); break; }
+    case "q-add": { const si=+el.dataset.s; const sec = p.sections[si]; const t = sec.type; const m = sec.questions[0]?.marks || TYPES[t].marks; sec.questions.push(mkQ({type:t, marks:m, chapterId:p.config.chapterIds[0], difficulty:"moderate", text:"", options:TYPES[t].opts?["","","",""]:[], answerIndex:TYPES[t].opts?0:null, source:"custom", reviewed:true})); softSave(); refreshEditorBody(); toast("Custom question added at the end of the section."); break; }
+    case "or-add": { const q = p.sections[+el.dataset.s].questions[+el.dataset.k]; q.or = mkQ({type:q.type, marks:q.marks, chapterId:q.chapterId, difficulty:q.difficulty, text:"", options:TYPES[q.type].opts?["","","",""]:[], answerIndex:TYPES[q.type].opts?0:null, source:"custom", reviewed:true}); softSave(); refreshEditorBody(); break; }
+    case "or-del": p.sections[+el.dataset.s].questions[+el.dataset.k].or = null; softSave(); refreshEditorBody(); break;
+    case "img-del": qAt(el.dataset.q).image = null; softSave(); refreshEditorBody(); break;
+    case "to-bank": { const q = p.sections[+el.dataset.s].questions[+el.dataset.k]; if (!q.text.trim()){ toast("Write the question before saving it.", true); return; } if (S.bank.some(b=>b.text===q.text)){ toast("This question is already in your bank."); return; } const b = {...clone(q), id:uid(), classNo:p.config.classNo, subjectId:p.config.subjectId, ref: q.source==="ai" ? "AI-generated, reviewed by teacher" : q.source==="starter" ? STARTER_SRC : "Written by teacher", reviewed: !!q.reviewed, verifiedOn: q.reviewed ? Date.now() : null, starter:false, or:null}; S.bank.push(b); await save("bank", b); toast(q.reviewed ? "Saved to your bank as verified." : "Saved to your bank as not verified. Tick Reviewed first to save it as verified."); break; }
+    case "save-draft": await persistPaper(); toast("Draft saved."); break;
+    case "regen-all": confirmBox("Regenerate every AI question in this paper? Questions you wrote, edited and ticked Reviewed, and verified bank questions, are kept.", "Regenerate", ()=>{ p.sections.forEach(sec => sec.questions = sec.questions.map(q => (q.source==="ai" && !q.reviewed) ? {id:uid(), pending:true, type:q.type, marks:q.marks, chapterId:q.chapterId, difficulty:q.difficulty, wantOr:!!q.or} : q)); render(); fillPending(p); }); break;
+    case "mark-final": p.status = p.status==="final" ? "draft" : "final"; await persistPaper(); render(); break;
+    case "dl-pdf": downloadPdf(); break;
+    case "dl-doc": downloadDoc(); break;
+    case "open-paper": { const x = findPaper(el.dataset.id); if (!x) return; S.paper = clone(x); S.wiz = null; S.step = 6; S.gen = null; S.edTab = "edit"; go("create"); break; }
+    case "open-dl": { const x = findPaper(el.dataset.id); if (!x) return; S.paper = clone(x); S.wiz = null; S.step = 7; S.gen = null; go("create"); break; }
+    case "dup-paper": { const x = findPaper(el.dataset.id); const d = clone(x); d.id = uid(); d.example = false; d.name = x.example ? "Class 10 Maths Unit Test (from example)" : x.name + " (copy)"; d.created = d.updated = Date.now(); d.status = "draft"; S.papers.push(d); await save("paper", d); S.paper = clone(d); S.wiz = null; S.step = 6; S.gen = null; toast("Copy created. Edits are saved to the copy."); go("create"); break; }
+    case "reuse-paper": { const x = findPaper(el.dataset.id); newWizard({...clone(x.config), chapterIds:[], weights:{}}); S.step = 3; toast("Settings copied. Choose chapters for the new paper."); go("create"); break; }
+    case "rename-paper": { const x = S.papers.find(q=>q.id===el.dataset.id); promptBox("Paper name", x.name, "Rename", async v => { x.name = v; x.updated = Date.now(); await save("paper", x); render(); }); break; }
+    case "del-paper": { const x = S.papers.find(q=>q.id===el.dataset.id); confirmBox(`Delete "${x.name}"? This can't be undone.`, "Delete paper", async ()=>{ S.papers = S.papers.filter(q=>q.id!==x.id); if (S.paper?.id===x.id) S.paper = null; await Store.del("paper", x.id); toast("Paper deleted."); render(); }); break; }
+    case "tpl-use": { const t = S.tpls.find(x=>x.id===el.dataset.id); newWizard(); Object.assign(S.wiz, {examType:t.cfg.examType, maxMarks:t.cfg.maxMarks, marksCustom:!MARK_OPTS.includes(t.cfg.maxMarks), duration:t.cfg.duration, durCustom:!DUR_OPTS.includes(t.cfg.duration), difficulty:t.cfg.difficulty, mix:clone(t.cfg.mix), types:[...t.cfg.types], sections:clone(t.cfg.sections), tplApplied:t.name}); toast(`Template "${t.name}" applied. Choose class, subject and chapters.`); go("create"); break; }
+    case "tpl-default": { const id = el.dataset.id; S.settings.defaultTpl = S.settings.defaultTpl===id ? "" : id; saveSettings(); render(); break; }
+    case "tpl-rename": { const t = S.tpls.find(x=>x.id===el.dataset.id); promptBox("Template name", t.name, "Rename", async v => { t.name = v; await save("tpl", t); render(); }); break; }
+    case "tpl-del": { const t = S.tpls.find(x=>x.id===el.dataset.id); confirmBox(`Delete template "${t.name}"?`, "Delete", async ()=>{ S.tpls = S.tpls.filter(x=>x.id!==t.id); if (S.settings.defaultTpl===t.id){ S.settings.defaultTpl=""; saveSettings(); } await Store.del("tpl", t.id); render(); }); break; }
+    case "bank-verify": { let b = S.bank.find(x=>x.id===el.dataset.id); if (!b){ const st = STARTER_BANK.find(x=>x.id===el.dataset.id); b = {...clone(st), ref: STARTER_SRC + " Verified by teacher."}; S.bank.push(b); } b.reviewed = true; b.verifiedOn = Date.now(); await save("bank", b); toast("Marked verified. It can now be used in verified-only papers."); render(); break; }
+    case "bank-unverify": { const b = S.bank.find(x=>x.id===el.dataset.id); b.reviewed = false; b.verifiedOn = null; await save("bank", b); render(); break; }
+    case "bank-del": { const b = S.bank.find(x=>x.id===el.dataset.id); confirmBox("Delete this question from your bank?", "Delete", async ()=>{ S.bank = S.bank.filter(x=>x.id!==b.id); await Store.del("bank", b.id); render(); }); break; }
+    case "syl-cls": S.sylSel = {cls:el.dataset.c, sub:"", tb:""}; render(); break;
+    case "syl-sub": S.sylSel.sub = el.dataset.s; S.sylSel.tb = ""; render(); break;
+    case "syl-tb": S.sylSel.tb = el.dataset.t; render(); break;
+    case "syl-tb-add": promptBox("Textbook title", "", "Add textbook", v => { const s = subject(S.sylSel.cls, S.sylSel.sub); const t = {id:`${s.id}-t${uid()}`, title:v, edition:"", status:"empty", source:SRC_EMPTY, checked:null, chapters:[]}; s.textbooks.push(t); S.sylSel.tb = t.id; saveSyl(); render(); }); break;
+    case "syl-tb-del": { const s = subject(S.sylSel.cls, S.sylSel.sub); const t = s.textbooks.find(x=>x.id===S.sylSel.tb); confirmBox(`Remove "${t.title}" and its chapters? Saved papers keep their questions.`, "Remove", ()=>{ s.textbooks = s.textbooks.filter(x=>x!==t); S.sylSel.tb=""; saveSyl(); render(); }); break; }
+    case "syl-sub-del": { const c = S.sylSel.cls; const s = subject(c, S.sylSel.sub); confirmBox(`Remove ${s.name} from Class ${c}?`, "Remove", ()=>{ S.syl.classes[c].subjects = subjectsOf(c).filter(x=>x!==s); S.sylSel.sub=""; saveSyl(); render(); }); break; }
+    case "syl-verify": { const t = subject(S.sylSel.cls,S.sylSel.sub).textbooks.find(x=>x.id===S.sylSel.tb); if (!t.chapters.length){ toast("Add chapters before marking the list verified.", true); return; } t.status = "verified"; t.checked = TODAY_ISO(); if (t.source===SRC_MEM || t.source===SRC_EMPTY) t.source = `Checked by teacher against the NCERT textbook on ${fmtDate(Date.now())}.`; saveSyl(); render(); toast("Chapter list marked verified."); break; }
+    case "syl-unverify": { const t = subject(S.sylSel.cls,S.sylSel.sub).textbooks.find(x=>x.id===S.sylSel.tb); t.status = "unverified"; t.checked = null; saveSyl(); render(); break; }
+    case "syl-ch-del": { const t = subject(S.sylSel.cls,S.sylSel.sub).textbooks.find(x=>x.id===S.sylSel.tb); t.chapters.splice(+el.dataset.i,1); saveSyl(); render(); break; }
+    case "syl-bulk": { const t = subject(S.sylSel.cls,S.sylSel.sub).textbooks.find(x=>x.id===S.sylSel.tb); const lines = $("#bulk-ch").value.split("\n").map(x=>x.trim()).filter(Boolean); if (!lines.length) return; addChapters(t, lines); toast(`${lines.length} chapter(s) added.`); break; }
+    case "syl-reset": confirmBox("Replace all syllabus data with the built-in version? Your edits and added chapters are removed. Saved papers are not affected.", "Reset", async ()=>{ S.syl = clone(BASE_SYL); await save("syl", {...S.syl, id:"main"}); render(); toast("Syllabus data reset."); }); break;
+    case "logo-del": S.settings.logo = null; saveSettings(); render(); break;
+  }
+});
+function addChapters(t, titles){
+  const prefix = t.id; let maxNo = t.chapters.reduce((m,c)=>Math.max(m,c.no),0);
+  titles.forEach(title => { maxNo++; t.chapters.push({id:`${prefix}-x${uid()}`, no:maxNo, title, inSyllabus:true}); });
+  if (t.status==="empty"){ t.status = "unverified"; t.source = "Entered by teacher. Mark verified after checking against the NCERT textbook."; }
+  saveSyl(); render();
+}
+document.addEventListener("change", async e => {
+  const el = e.target; const w = S.wiz; const p = S.paper; const a = el.dataset.act;
+  if (a === "ch-toggle"){ const id = el.dataset.id; if (el.checked) w.chapterIds.push(id); else w.chapterIds = w.chapterIds.filter(x=>x!==id); render(); return; }
+  if (a === "type-toggle"){ const t = el.dataset.t; if (el.checked) w.types.push(t); else w.types = w.types.filter(x=>x!==t); render(); return; }
+  if (a === "src"){ w.source = el.value; render(); return; }
+  if (a === "dlmode"){ S.dlMode = el.value; render(); return; }
+  if (a === "toggle-key"){ S.showKey = el.checked; refreshEditorBody(); return; }
+  if (a === "toggle-space"){ p.config.answerSpace = el.checked; softSave(); return; }
+  if (a === "img-add"){ const path = el.dataset.q; readImage(el.files[0], 900, url => { qAt(path).image = url; softSave(); refreshEditorBody(); }); return; }
+  if (el.id === "logo-in"){ readImage(el.files[0], 240, url => { S.settings.logo = url; saveSettings(); render(); }); return; }
+  if (el.id === "cf-exam"){ w.examType = el.value; const et = EXAM_TYPES.find(x=>x.id===el.value); w.maxMarks = et.marks; w.marksCustom = ""; w.duration = et.dur; w.durCustom = ""; w.sections = []; render(); return; }
+  if (el.id === "cf-marks"){ if (el.value==="custom"){ w.marksCustom = "1"; } else { w.marksCustom = ""; w.maxMarks = +el.value; } w.sections = []; render(); return; }
+  if (el.id === "cf-marks-c"){ const v = Math.max(1, Math.min(200, Math.round(+el.value||0))); w.maxMarks = v; w.sections = []; render(); return; }
+  if (el.id === "cf-dur"){ if (el.value==="custom"){ w.durCustom = "1"; } else { w.durCustom = ""; w.duration = +el.value; } render(); return; }
+  if (el.id === "cf-dur-c"){ w.duration = Math.max(5, Math.min(300, Math.round(+el.value||0))); return; }
+  if (el.id === "cf-lang"){ w.language = el.value; return; }
+  if (el.dataset.mix){ render(); return; }
+  if (el.id === "cf-diff"){ w.difficulty = el.value; render(); return; }
+  if (el.id === "tpl-apply" && el.value){ const t = S.tpls.find(x=>x.id===el.value); Object.assign(w, {examType:t.cfg.examType, maxMarks:t.cfg.maxMarks, marksCustom:MARK_OPTS.includes(t.cfg.maxMarks)?"":"1", duration:t.cfg.duration, durCustom:DUR_OPTS.includes(t.cfg.duration)?"":"1", difficulty:t.cfg.difficulty, mix:clone(t.cfg.mix), types:[...t.cfg.types], sections:clone(t.cfg.sections)}); toast(`Template "${t.name}" applied.`); render(); return; }
+  if (el.dataset.row !== undefined){ const r = w.sections[+el.dataset.row]; const f = el.dataset.f; if (f==="type"){ r.type = el.value; } else if (f==="attempt"){ r.attempt = el.value ? Math.max(1, Math.round(+el.value)) : null; } else { r[f] = Math.max(f==="choices"?0:1, Math.round(+el.value||0)); } render(); return; }
+  if (el.id === "dl-date"){ p.config.date = el.value; softSave(); return; }
+  if (["pf-cls","pf-sub","pf-from"].includes(el.id)){ S.filters[{"pf-cls":"cls","pf-sub":"sub","pf-from":"from"}[el.id]] = el.value; render(); return; }
+  if (["bf-cls","bf-sub","bf-st"].includes(el.id)){ S.bankF[{"bf-cls":"cls","bf-sub":"sub","bf-st":"status"}[el.id]] = el.value; render(); return; }
+  if (el.dataset.set){ S.settings[el.dataset.set] = el.dataset.set==="duration" ? +el.value : el.value; if (el.dataset.set==="theme") applyTheme(); saveSettings(); return; }
+  if (el.dataset.chf !== undefined){ const t = subject(S.sylSel.cls,S.sylSel.sub).textbooks.find(x=>x.id===S.sylSel.tb); const ch = t.chapters[+el.dataset.i]; const f = el.dataset.chf; if (f==="inSyllabus"){ ch.inSyllabus = el.checked; saveSyl(); render(); } else if (f==="no"){ ch.no = Math.max(1, +el.value||1); t.chapters.sort((x,y)=>x.no-y.no); saveSyl(); render(); } return; }
+  if (el.dataset.q !== undefined){ onQField(el, true); return; }
+});
+function onQField(el, isChange){
+  const q = qAt(el.dataset.q); const f = el.dataset.f; if (!q) return;
+  if (f==="text"||f==="answer"||f==="solution"||f==="scheme"){ q[f] = el.value; if (q.source==="ai" && f==="text"){} }
+  else if (f.startsWith("opt")){ q.options[+f.slice(3)] = el.value; if (q.answerIndex===+f.slice(3)) q.answer = `(${"abcd"[q.answerIndex]}) ${el.value}`; }
+  else if (f==="answerIndex"){ q.answerIndex = +el.value; q.answer = `(${"abcd"[q.answerIndex]}) ${q.options[q.answerIndex]||""}`; if (S.showKey && isChange) refreshEditorBody(); }
+  else if (f.startsWith("pairL")||f.startsWith("pairR")){ const i = +f.slice(5); while (q.pairs.length <= i) q.pairs.push(["",""]); q.pairs[i][f[4]==="L"?0:1] = el.value; const valid = q.pairs.filter(pp=>pp[0]||pp[1]); if (!q.matchOrder || q.matchOrder.length !== q.pairs.length) q.matchOrder = shuffledOrder(q.pairs.length); q.answer = q.pairs.map((pp,j)=>`(${ROMAN[j]}) → (${"pqrstu"[q.matchOrder.indexOf(j)]}) ${pp[1]}`).join("; "); }
+  else if (f==="marks"){ if (!isChange) return; q.marks = Math.max(0, Math.round(+el.value||0)); const outer = qAt(el.dataset.q.split(".").slice(0,2).join(".")); if (outer.or) outer.or.marks = q.marks; refreshSideOnly(); }
+  else if (f==="lines"){ q.lines = Math.max(0, Math.min(30, Math.round(+el.value||0))); }
+  else if (f==="reviewed"){ q.reviewed = el.checked; refreshEditorBody(); }
+  else if (f==="chapterId"||f==="difficulty"){ q[f] = el.value; refreshSideOnly(); }
+  softSave();
+}
+function refreshSideOnly(){ const sd = $("#ed-side"); if (sd) sd.innerHTML = sideHTML(); }
+document.addEventListener("input", e => {
+  const el = e.target;
+  if (el.matches("textarea[data-auto]")) autosize(el);
+  if (el.id === "ch-search"){ S.wiz.search = el.value; const pos = el.selectionStart; render(); const n = $("#ch-search"); n.focus(); n.setSelectionRange(pos,pos); return; }
+  if (el.dataset.mix){ const k = el.dataset.mix; S.wiz.mix[k] = +el.value; el.nextElementSibling.textContent = el.value + "%"; return; }
+  if (el.id === "cf-examname"){ S.wiz.examName = el.value; return; }
+  if (el.id === "pf-q"){ S.filters.q = el.value; const pos = el.selectionStart; render(); const n=$("#pf-q"); n.focus(); n.setSelectionRange(pos,pos); return; }
+  if (el.id === "bf-q"){ S.bankF.q = el.value; const pos = el.selectionStart; render(); const n=$("#bf-q"); n.focus(); n.setSelectionRange(pos,pos); return; }
+  if (el.dataset.sec !== undefined){ S.paper.sections[+el.dataset.sec].instructions = el.value; softSave(); return; }
+  if (el.dataset.q !== undefined && (el.tagName==="TEXTAREA" || el.type==="text")){ onQField(el, false); return; }
+  if (el.dataset.set && (el.tagName==="TEXTAREA" || el.type==="text")){ S.settings[el.dataset.set] = el.value; saveSettings(); renderRail(); return; }
+  if (el.dataset.tbf){ const t = subject(S.sylSel.cls,S.sylSel.sub).textbooks.find(x=>x.id===S.sylSel.tb); t[el.dataset.tbf] = el.value; saveSyl(); return; }
+  if (el.dataset.chf === "title"){ const t = subject(S.sylSel.cls,S.sylSel.sub).textbooks.find(x=>x.id===S.sylSel.tb); t.chapters[+el.dataset.i].title = el.value; saveSyl(); return; }
+  if (el.id === "syl-session"){ S.syl.session = el.value; saveSyl(); return; }
+});
+document.addEventListener("submit", e => {
+  e.preventDefault();
+  if (e.target.id === "add-ch"){ const v = $("#new-ch").value.trim(); if (!v) return; addChapters(subject(S.sylSel.cls,S.sylSel.sub).textbooks.find(x=>x.id===S.sylSel.tb), [v]); setTimeout(()=>$("#new-ch")?.focus(),0); }
+  if (e.target.id === "add-sub"){ const v = $("#new-sub").value.trim(); if (!v) return; const c = S.sylSel.cls; const s = {id:`c${c}-u${uid()}`, name:v, cat:$("#new-sub-cat").value, textbooks:[]}; S.syl.classes[c].subjects.push(s); S.sylSel.sub = s.id; saveSyl(); render(); toast(`${v} added to Class ${c}. Add its textbook next.`); }
+});
+$("#mnav").addEventListener("change", e => { const v = e.target.value; if (v==="create" && !S.wiz && !S.paper) newWizard(); go(v); });
+document.addEventListener("keydown", e => { if (e.key==="Escape" && $("#modal").innerHTML) $("#modal").innerHTML = ""; });
+
+/* ---------------- Boot ---------------- */
+(async function boot(){
+  render();
+  const useCap = n => (window.claude && claude.use) ? claude.use(n).catch(()=>null) : Promise.resolve(null);
+  const capsP = Promise.all([useCap("sample"), useCap("downloads")]);
+  await Store.init();
+  try{
+    const d = await Store.loadAll();
+    S.papers = d.paper; S.tpls = d.tpl; S.bank = d.bank;
+    if (d.settings[0]) S.settings = {...DEFAULT_SETTINGS, ...d.settings[0]};
+    if (d.syl[0] && d.syl[0].classes){ const {id, ...rest} = d.syl[0]; S.syl = rest; }
+  }catch(e){ toast("Couldn't load your saved work. You can keep working; try reloading later.", true); }
+  applyTheme();
+  [S.ai, S.dl] = await capsP;
+  render();
+})();
+</script>
+
+</body>
+</html>
